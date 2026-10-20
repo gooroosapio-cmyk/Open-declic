@@ -8,7 +8,9 @@ import { NatureBadge } from "@/components/Nature";
 import { AccessBadges } from "@/components/ProjectCard";
 import { StartButton } from "@/components/StartButton";
 import { COUNTRIES, DIFFICULTIES, EQUIPMENT, RECURRENCES, SKILLS, formatFcfa, formatRange, FULL_ACCESS_PRICE_FCFA } from "@/lib/constants";
-import { canReadReserved, getCategories, getProject, getSetting, getUserProjectState, getViewer } from "@/lib/data";
+import { CatalogueFacts, ModelSummary } from "@/components/CatalogueFacts";
+import { ModeleView } from "@/components/ModeleView";
+import { canReadReserved, getCategories, getProject, getSetting, getUserProjectState, getViewer, isCompleteApercu } from "@/lib/data";
 
 const lbl = (d: Record<string, string>, keys: string[]) => keys.map((k) => d[k] ?? k).join(", ");
 
@@ -22,12 +24,15 @@ export default async function ProjectPage({ params }: PageProps<"/projets/[slug]
   const [project, viewer, categories] = await Promise.all([getProject(slug), getViewer(), getCategories()]);
   if (!project) notFound();
   const state = await getUserProjectState(project.id, viewer);
+  const category = categories.find((c) => c.slug === project.category)?.label ?? project.category;
+  const a = project.apercu;
+  if (project.contentLevel === "modele" || !isCompleteApercu(a)) {
+    return <ModeleView project={project} category={category} favorite={state.favorite} loggedIn={Boolean(viewer.userId)} />;
+  }
   const allowed = canReadReserved(project, viewer);
   const contact = allowed ? null : (await getSetting<{ texte: string }>("acces_contact"))?.texte || null;
-  const a = project.apercu;
   const oneTime = a.budget.lignes.filter((l) => l.recurrence === "unique");
   const recurring = a.budget.lignes.filter((l) => l.recurrence !== "unique");
-  const category = categories.find((c) => c.slug === project.category)?.label ?? project.category;
   const done = new Set(state.validated);
   const visual = a.visuels[0];
 
@@ -51,6 +56,7 @@ export default async function ProjectPage({ params }: PageProps<"/projets/[slug]
           </figure>
         )}
         <div className="row"><AccessBadges p={project} /><span className="tag">{category}</span></div>
+        {project.odNumber && <p className="small muted" style={{ margin: 0 }}>{project.odNumber}{project.workName && ` · nom de travail : ${project.workName}`}</p>}
         <h1>{project.title}</h1>
         <p className="muted" style={{ fontSize: 17 }}>{project.summary}</p>
         <div className="row">
@@ -77,17 +83,20 @@ export default async function ProjectPage({ params }: PageProps<"/projets/[slug]
           <div><dt>Étapes</dt><dd>{project.outline.length}</dd></div>
         </dl>
         <p className="small">{a.difficulte_explication ?? null}</p>
+        {project.odNumber && <CatalogueFacts p={project} category={category} />}
         <div className="stack-sm">
           <h3>Pour qui ?</h3>
           <p>{a.client_cible}</p>
-          <h3>Quel problème ?</h3>
-          <p>{a.probleme}</p>
+          {a.probleme && (<><h3>Quel problème ?</h3><p>{a.probleme}</p></>)}
           <h3>Ce qui est proposé</h3>
           <p>{a.offre}</p>
-          <div className="od-card od-card--flat stack-sm">
-            <div className="row"><strong>Exemple de livrable</strong><NatureBadge nature={a.exemple_livrable.nature} /></div>
-            <p style={{ margin: 0 }}>{a.exemple_livrable.description}</p>
-          </div>
+          {a.exemple_livrable && (
+            <div className="od-card od-card--flat stack-sm">
+              <div className="row"><strong>Exemple de livrable</strong><NatureBadge nature={a.exemple_livrable.nature} /></div>
+              <p style={{ margin: 0 }}>{a.exemple_livrable.description}</p>
+            </div>
+          )}
+          <ModelSummary v1={a.v1} reporte={a.reporte} revenu={a.revenu} construire={a.construire} />
         </div>
 
         <div className="grid-cards" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))" }}>
@@ -158,10 +167,10 @@ export default async function ProjectPage({ params }: PageProps<"/projets/[slug]
             <p><strong>Pour construire :</strong> {a.role_ia.construction}</p>
             <p><strong>Pour fonctionner :</strong> {a.role_ia.fonctionnement}</p>
             <h3>Préparation, exploitation et maintenance</h3>
-            <p><strong>Préparation :</strong> {a.exploitation.preparation}</p>
-            <p><strong>Exploitation :</strong> {a.exploitation.exploitation}</p>
-            <p><strong>Maintenance :</strong> {a.exploitation.maintenance}</p>
-            <p><strong>Travail humain restant :</strong> {a.exploitation.travail_humain}</p>
+            {a.exploitation.preparation && <p><strong>Préparation :</strong> {a.exploitation.preparation}</p>}
+            {a.exploitation.exploitation && <p><strong>Exploitation :</strong> {a.exploitation.exploitation}</p>}
+            {a.exploitation.maintenance && <p><strong>Maintenance :</strong> {a.exploitation.maintenance}</p>}
+            {a.exploitation.travail_humain && <p><strong>Travail humain restant :</strong> {a.exploitation.travail_humain}</p>}
           </div>
         </details>
 
@@ -171,8 +180,8 @@ export default async function ProjectPage({ params }: PageProps<"/projets/[slug]
             <p>{a.test_demande.description}</p>
             <h3>Poursuivre si…</h3>
             <ul>{a.test_demande.criteres_poursuite.map((x) => <li key={x}>{x}</li>)}</ul>
-            <h3>Réviser si…</h3>
-            <ul>{a.test_demande.criteres_revision.map((x) => <li key={x}>{x}</li>)}</ul>
+            {a.test_demande.criteres_revision.length > 0 && (<><h3>Réviser si…</h3>
+            <ul>{a.test_demande.criteres_revision.map((x) => <li key={x}>{x}</li>)}</ul></>)}
             {a.risques.length > 0 && (<><h3>Risques</h3><ul>{a.risques.map((x) => <li key={x}>{x}</li>)}</ul></>)}
             {a.limites && <p className="small muted">{a.limites}</p>}
           </div>
@@ -186,7 +195,7 @@ export default async function ProjectPage({ params }: PageProps<"/projets/[slug]
             <li key={s.step_key}>
               <span className={`step-num${done.has(s.step_key) ? " done" : ""}`} aria-hidden="true">{done.has(s.step_key) ? "✓" : i + 1}</span>
               <span>{s.title}{done.has(s.step_key) && <span className="sr-only"> (validée)</span>}</span>
-              {!allowed && <span style={{ marginLeft: "auto" }} aria-label="Réservé"><Icon name="verrou" small /></span>}
+              {!allowed && <span style={{ marginLeft: "auto" }}><Icon name="verrou" small /><span className="sr-only">Réservé</span></span>}
             </li>
           ))}
         </ol>

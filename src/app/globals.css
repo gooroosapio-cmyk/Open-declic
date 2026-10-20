@@ -110,6 +110,7 @@ main.shell { padding-top: 16px; padding-bottom: calc(var(--od-nav-h) + 32px); }
 .od-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--od-action-hover); background: var(--od-peach); white-space: nowrap; }
 .od-badge--free { color: var(--od-green-ink); background: var(--od-sage); }
 .od-badge--demo { color: #1f3d47; background: var(--od-blue); }
+.od-badge--complete { color: #fff; background: var(--od-action); }
 .od-badge--neutral { color: var(--od-ink); background: #efe9e3; }
 .od-badge--draft { color: var(--od-warn-ink); background: var(--od-warn-bg); }
 .tag { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 13px; background: #f3eee9; color: var(--od-ink); }
@@ -222,3 +223,14 @@ table.data th { font-weight: 700; color: var(--od-muted); font-size: 13px; }
 .issues { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14px; }
 .diff-added { color: var(--od-green-ink); }
 .diff-changed { color: var(--od-warn-ink); }
+
+/* Contenus Markdown (cahiers de construction) */
+.markdown { display: grid; gap: 10px; overflow-wrap: anywhere; }
+.markdown p, .markdown ul, .markdown ol { margin: 0; }
+.markdown ul, .markdown ol { padding-left: 20px; display: grid; gap: 4px; }
+.markdown h3 { font-size: 18px; margin-top: 12px; }
+.markdown h4 { font-size: 16px; margin: 8px 0 0; }
+.markdown code { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; background: #f3eee9; padding: 1px 5px; border-radius: 6px; }
+.markdown pre { white-space: pre-wrap; background: var(--od-ivory); padding: 12px; border-radius: 12px; border: 1px solid var(--od-line); }
+.markdown pre code { background: none; padding: 0; }
+.markdown hr { border: 0; border-top: 1px solid var(--od-line); width: 100%; }

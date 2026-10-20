@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AccessOffer } from "@/components/AccessOffer";
 import { Icon } from "@/components/Icon";
+import { Markdown } from "@/components/Markdown";
 import { PromptConsole } from "@/components/PromptConsole";
 import { StepValidation } from "@/components/StepValidation";
 import { canReadReserved, getProject, getReserved, getSetting, getUserProjectState, getViewer, toPromptContext } from "@/lib/data";
@@ -22,6 +23,16 @@ export default async function KitPage({ params }: PageProps<"/projets/[slug]/kit
       <Icon name="retour" small /> Retour à la fiche
     </Link>
   );
+
+  if (project.contentLevel === "modele") {
+    return (
+      <div className="stack">
+        {back}
+        <h1>{project.title}</h1>
+        <p className="notice notice--info">Cahier de construction en préparation : ce modèle n&apos;a pas encore d&apos;étapes ni de prompts. <Link href="/?niveau_contenu=complete">Voir les fiches complètes</Link>.</p>
+      </div>
+    );
+  }
 
   // Contrôle côté serveur : un visiteur non autorisé ne déclenche même pas la lecture.
   if (!canReadReserved(project, viewer)) {
@@ -80,6 +91,7 @@ export default async function KitPage({ params }: PageProps<"/projets/[slug]/kit
 
       <nav aria-label="Plan du kit" className="od-card">
         <ol className="stack-sm" style={{ margin: 0, paddingLeft: 20 }}>
+          {(kit.dossier_md || kit.cahier_md) && <li><a href="#dossier">Dossier de la fiche</a></li>}
           <li><a href="#cadrage">Prompt initial de cadrage</a></li>
           {kit.configurations.length > 0 && <li><a href="#configurations">Configurations utiles</a></li>}
           {reserved.steps.map((s) => (
@@ -88,6 +100,32 @@ export default async function KitPage({ params }: PageProps<"/projets/[slug]/kit
           <li><a href="#transmission">Résumé de transmission</a></li>
         </ol>
       </nav>
+
+      {(kit.dossier_md || kit.cahier_md || kit.socle_md) && (
+        <section id="dossier" className="stack" aria-labelledby="h-dossier">
+          <h2 id="h-dossier">Dossier de la fiche</h2>
+          {kit.dossier_md && (
+            <div className="od-card stack-sm">
+              <p style={{ margin: 0 }}>Les prompts demandent de joindre ce dossier à l&apos;outil IA : il contient la fiche, le socle commun et les références techniques.</p>
+              <a className="od-button" href={`/projets/${slug}/kit/dossier`} download>
+                <Icon name="telecharger" /> Télécharger le dossier (.md)
+              </a>
+            </div>
+          )}
+          {kit.cahier_md && (
+            <details className="od-card">
+              <summary style={{ minHeight: 44, display: "flex", alignItems: "center", fontWeight: 700, cursor: "pointer" }}>Cahier de construction : écrans, données, sécurité et recette</summary>
+              <div style={{ paddingTop: 8 }}><Markdown>{kit.cahier_md}</Markdown></div>
+            </details>
+          )}
+          {kit.socle_md && (
+            <details className="od-card">
+              <summary style={{ minHeight: 44, display: "flex", alignItems: "center", fontWeight: 700, cursor: "pointer" }}>Socle commun : hypothèses, rôles des IA, sécurité, paiement Visa, mise en ligne</summary>
+              <div style={{ paddingTop: 8 }}><Markdown>{kit.socle_md}</Markdown></div>
+            </details>
+          )}
+        </section>
+      )}
 
       <section id="cadrage" className="stack" aria-labelledby="h-cadrage">
         <h2 id="h-cadrage">1. Cadrer le projet</h2>

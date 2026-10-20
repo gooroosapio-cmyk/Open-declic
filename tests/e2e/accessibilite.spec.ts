@@ -2,9 +2,10 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { createUser, login } from "./helpers";
 
-const PUBLIC = ["/", "/aide-choix", "/projets/demo-rendez-vous-salons", "/projets/demo-rendez-vous-salons/kit", "/projets/demo-carnet-couture/kit", "/comparer", "/acces", "/connexion", "/inscription"];
+const PUBLIC = ["/", "/projets/od-001", "/projets/od-001/kit", "/projets/od-140", "/projets/od-002", "/aide-choix", "/projets/demo-rendez-vous-salons", "/projets/demo-rendez-vous-salons/kit", "/projets/demo-carnet-couture/kit", "/comparer", "/acces", "/connexion", "/inscription"];
 
 test("audit axe (WCAG 2.1 AA) des pages publiques et connectées", async ({ page }) => {
+  test.setTimeout(600_000); // pages volumineuses (kits complets) analysées une par une
   const check = async (path: string) => {
     await page.goto(path);
     await page.waitForLoadState("networkidle");

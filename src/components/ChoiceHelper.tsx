@@ -68,7 +68,9 @@ export function ChoiceHelper({ categories }: { categories: { slug: string; label
             </select>
           </label>
         </div>
+        <label className="check"><input type="checkbox" checked={f.complete} onChange={(e) => setF({ ...f, complete: e.target.checked })} /> Seulement les fiches complètes (étapes et prompts disponibles)</label>
         <label className="check"><input type="checkbox" checked={f.gratuit} onChange={(e) => setF({ ...f, gratuit: e.target.checked })} /> Fiches gratuites seulement</label>
+        <label className="check"><input type="checkbox" checked={f.inconnus} onChange={(e) => setF({ ...f, inconnus: e.target.checked })} /> Inclure les projets dont une donnée n&apos;est pas encore renseignée</label>
       </fieldset>
       <button type="submit" className="od-button od-button--block">Voir les projets correspondants</button>
     </form>

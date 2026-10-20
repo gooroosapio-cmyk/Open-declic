@@ -30,7 +30,9 @@ export type ProjectContext = {
   monthlyCost: { min: number | null; max: number | null };
   weeklyHours: { min: number | null; max: number | null };
   targetClient: string;
-  problem: string;
+  problem?: string;
+  workName?: string | null;
+  odNumber?: string | null;
   offer: string;
   localAdaptation: string;
   aiRole: string;
@@ -64,11 +66,14 @@ const label = <T extends Record<string, string>>(dict: T, keys: string[]) =>
   keys.map((k) => dict[k as keyof T] ?? k).join(", ");
 
 export function projectContextBlock(p: ProjectContext): string {
-  return `CONTEXTE DU PROJET (fiche Open declic)
-Projet : ${p.title}
-Résumé : ${p.summary}
-Client cible : ${p.targetClient}
-Problème traité : ${p.problem}
+  const lines = [
+    `CONTEXTE DU PROJET (fiche Open declic${p.odNumber ? ` ${p.odNumber}` : ""})`,
+    `Projet : ${p.title}${p.workName ? ` (nom de travail : ${p.workName})` : ""}`,
+    `Résumé : ${p.summary}`,
+    `Client cible : ${p.targetClient}`,
+  ];
+  if (p.problem) lines.push(`Problème traité : ${p.problem}`);
+  return `${lines.join("\n")}
 Offre : ${p.offer}
 Pays étudié(s) : ${label(COUNTRIES, p.countries)}
 Adaptation locale envisagée : ${p.localAdaptation}

@@ -1,10 +1,10 @@
 // Génère docs/fiche-schema-1.0.json (JSON Schema) à partir du schéma Zod de l'import.
 import { writeFileSync } from "node:fs";
 import { z } from "zod";
-import { ficheSchema, SCHEMA_VERSION } from "../src/lib/fiche-schema";
+import { anyFicheSchema, SCHEMA_VERSION } from "../src/lib/fiche-schema";
 
 const schema = z.toJSONSchema(
-  z.strictObject({ schema_version: z.literal(SCHEMA_VERSION), fiches: z.array(ficheSchema).min(1) }),
+  z.strictObject({ schema_version: z.literal(SCHEMA_VERSION), fiches: z.array(anyFicheSchema).min(1) }),
   { io: "input", unrepresentable: "any" },
 );
 writeFileSync(

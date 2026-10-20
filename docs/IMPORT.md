@@ -1,10 +1,48 @@
-# Format d'import des fiches — version 1.0
+# Format d'import des fiches — version 1.1
 
 Les fiches s'importent depuis **Administration › Import** au format JSON.
 
 - Schéma de référence (validation réelle) : `src/lib/fiche-schema.ts`
-- Schéma JSON généré : `docs/fiche-schema-1.0.json` (`npm run schema`)
-- Exemple valide : `content/demo-fiches.json` (4 fiches « Démonstration »)
+- Schéma JSON généré : `docs/fiche-schema-1.1.json` (`npm run schema`)
+- Exemples valides : `content/catalogue-v1.json` (catalogue V1 : 10 fiches complètes et 190 modèles) et `content/demo-fiches.json` (4 fiches « Démonstration » utilisées par les tests)
+- La version 1.0 reste acceptée : ses fiches sont lues comme des fiches complètes, sans repères de catalogue.
+
+## Deux niveaux de contenu
+
+| `niveau_contenu` | Contenu | Visible |
+|---|---|---|
+| `complete` | Aperçu détaillé, et kit réservé : étapes, prompts, configurations, cahier de construction, socle commun, dossier à télécharger | Aperçu pour tous ; kit pour les fiches gratuites, les membres complets et les administrateurs |
+| `modele` | Aperçu réduit : V1, adaptation locale, piste de revenu, méthode de construction, référence | Tout est public ; aucun contenu réservé |
+
+Un modèle peut devenir une fiche complète par un import ultérieur. L'inverse est refusé, pour éviter toute suppression implicite. La base refuse aussi d'ajouter un kit ou des étapes à un modèle.
+
+## Repères du catalogue (`catalogue`, facultatif)
+
+```jsonc
+"catalogue": {
+  "numero": "OD-001",            // identifiant affiché, unique
+  "nom_travail": "Créneau Clair", // ou null
+  "domaine": "Organisation",
+  "client": "b2b | b2c | b2b2c",
+  "ia_usage": "non_necessaire | optionnelle | requise",
+  "preuve": "A | B | O",         // A : adoption publiée, B : produit documenté, O : proposition Open declic
+  "mise_en_avant": true           // affichée en tête du catalogue
+}
+```
+
+## Catalogue V1 : régénération
+
+```bash
+python3 -I scripts/extract-catalogue-pdf.py content/sources/Open_declic_200_Modeles_Duplicables_V1.pdf content/sources/catalogue-200-v1.json
+npx tsx scripts/convert-v1.ts     # → content/catalogue-v1.json (validé par le schéma)
+```
+
+La conversion reprend les textes à l'identique. Elle n'apporte que les changements suivants :
+- **Prompts** : la phrase qui fixait le mode (« Mode Laisser l'IA choisir… cinq QCM ») est retirée. Le mode se choisit dans la console d'Open declic, qui limite à trois questions à la fois.
+- **Prompt de démarrage** : il cible directement le numéro de la fiche.
+- **Dépenses mensuelles** : l'objectif « 50 à 100 € par mois » est converti au taux fixe 1 € = 655,957 FCFA et marqué comme hypothèse.
+- **Valeurs non renseignées** : le budget de lancement, le temps hebdomadaire et, pour les modèles, les compétences et le matériel ne sont pas chiffrés par les sources ; ils restent vides.
+- **Accès** : OD-001 et OD-003 sont gratuites par défaut. Ce réglage se modifie dans l'administration.
 
 ## Déroulement
 
@@ -32,12 +70,13 @@ Les fiches s'importent depuis **Administration › Import** au format JSON.
   "schema_version": "1.0",
   "fiches": [
     {
-      "id": "mon-projet",                // identifiant stable : minuscules, chiffres, tirets
+      "id": "mon-projet",                // identifiant stable : minuscules, chiffres, tirets (catalogue V1 : od-001…)
+      "niveau_contenu": "complete",      // ou "modele"
       "version": "1",                    // version éditoriale de la fiche
       "demonstration": false,            // true = badge « Démonstration »
       "titre": "…",                      // 80 caractères max
       "resume": "…",                     // 240 caractères max
-      "categorie": "saas",               // identifiant d'une catégorie existante
+      "categorie": "saas-app",           // identifiant d'une catégorie existante : saas-app, site, jeu
       "pays": ["CI"],                    // CI, SN, CM, FR
       "date_verification": "2026-10-20", // ou null
       "acces": { "gratuit": false },     // utilisé à la création uniquement
@@ -78,6 +117,8 @@ Les fiches s'importent depuis **Administration › Import** au format JSON.
 - `kit.prompt_cadrage` et `kit.resume_transmission` : prompts de niveau kit.
 - `kit.configurations[]` : `{ nom, role, lien, etapes[], verification }`. Uniquement pour les projets qui en ont besoin (base de données, hébergement, domaine…).
 - `kit.ressources[]` : `{ titre, url, description }`.
+- `kit.cahier_md`, `kit.socle_md` : cahier de construction et socle commun, en Markdown. Ils sont affichés sans interpréter de HTML.
+- `kit.dossier_md` : dossier complet téléchargeable (`/projets/<id>/kit/dossier`), à joindre à l'outil IA.
 - `etapes[]` : 
   ```jsonc
   {

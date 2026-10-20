@@ -87,6 +87,7 @@ test("visuel : envoi avec description accessible puis retrait", async ({ page })
   const count = Number(sql(`select jsonb_array_length(public_content->'visuels') from public.projects where slug = 'demo-quiz-culture'`));
   page.once("dialog", (d) => d.accept());
   await section.getByRole("button", { name: "Retirer" }).last().click();
-  await expect(section.getByText("Modifications enregistrées.").last()).toBeVisible();
+  // Le visuel retiré disparaît de la liste après confirmation du serveur.
+  await expect(section.getByRole("img", { name: "Icône de test e2e" })).toHaveCount(0);
   expect(Number(sql(`select jsonb_array_length(public_content->'visuels') from public.projects where slug = 'demo-quiz-culture'`))).toBe(count - 1);
 });

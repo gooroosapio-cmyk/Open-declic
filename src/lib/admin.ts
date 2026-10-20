@@ -2,7 +2,7 @@ import "server-only";
 import { notFound } from "next/navigation";
 import { createClient } from "./supabase/server";
 import { getViewer, type PublicContent } from "./data";
-import { SCHEMA_VERSION, type Fiche, type KitContent, type StepContent } from "./fiche-schema";
+import { SCHEMA_VERSION, type AnyFiche, type KitContent, type StepContent } from "./fiche-schema";
 
 /** Garde serveur des pages et actions d'administration (la base revérifie via RLS). */
 export async function requireAdmin() {
@@ -30,8 +30,10 @@ export async function listAllProjects(): Promise<AdminProjectRow[]> {
  * Reconstitue une fiche au format d'import à partir de la base.
  * Toute modification de l'administration repasse par ce format et sa validation.
  */
-export async function exportFiches(slugs: string[]): Promise<Map<string, { fiche: Fiche; status: string; isFree: boolean; retiredSteps: string[] }>> {
-  const out = new Map<string, { fiche: Fiche; status: string; isFree: boolean; retiredSteps: string[] }>();
+export type ExportedFiche = { fiche: AnyFiche; status: string; isFree: boolean; retiredSteps: string[] };
+
+export async function exportFiches(slugs: string[]): Promise<Map<string, ExportedFiche>> {
+  const out = new Map<string, ExportedFiche>();
   if (slugs.length === 0) return out;
   const supabase = await createClient();
   const { data: projects, error } = await supabase.from("projects").select("*").in("slug", slugs);
@@ -49,7 +51,7 @@ export async function exportFiches(slugs: string[]): Promise<Map<string, { fiche
     delete pc.difficulte_explication;
     const kit = (kits?.find((k) => k.project_id === p.id)?.content ?? {}) as KitContent;
     const ownSteps = (steps ?? []).filter((s) => s.project_id === p.id);
-    const fiche: Fiche = {
+    const common = {
       id: p.slug,
       version: p.content_version,
       demonstration: p.is_demo,
@@ -67,23 +69,32 @@ export async function exportFiches(slugs: string[]): Promise<Map<string, { fiche
         depenses_mensuelles: { min: p.monthly_cost_min, max: p.monthly_cost_max },
         heures_hebdo: { min: p.weekly_hours_min, max: p.weekly_hours_max },
       },
+      catalogue: p.od_number
+        ? { numero: p.od_number, nom_travail: p.work_name, domaine: p.domain, client: p.client_type, ia_usage: p.ai_usage, preuve: p.evidence, mise_en_avant: p.featured }
+        : null,
       apercu: pc,
-      reserve: {
-        kit,
-        etapes: ownSteps.filter((s) => !s.retired).map((s) => ({ id: s.step_key, titre: s.title, ...(s.content as StepContent) })),
-      },
-    } as Fiche;
+    };
+    const fiche = (p.content_level === "modele"
+      ? { ...common, niveau_contenu: "modele" }
+      : {
+          ...common,
+          niveau_contenu: "complete",
+          reserve: {
+            kit,
+            etapes: ownSteps.filter((s) => !s.retired).map((s) => ({ id: s.step_key, titre: s.title, ...(s.content as StepContent) })),
+          },
+        }) as AnyFiche;
     out.set(p.slug, { fiche, status: p.status, isFree: p.is_free, retiredSteps: ownSteps.filter((s) => s.retired).map((s) => s.step_key) });
   }
   return out;
 }
 
-export async function saveFiches(fiches: Fiche[]): Promise<{ id: string; created: boolean }[]> {
+export async function saveFiches(fiches: AnyFiche[]): Promise<{ id: string; created: boolean }[]> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("admin_import_fiches", { p_payload: { schema_version: SCHEMA_VERSION, fiches } });
   if (error) {
     throw new Error(
-      error.code === "42501" ? "Accès refusé : rôle administrateur requis." : `L'enregistrement a échoué : ${error.message}`,
+      error.code === "42501" ? "Accès refusé : rôle administrateur requis." : error.code === "23514" ? error.message : `L'enregistrement a échoué : ${error.message}`,
     );
   }
   return data as { id: string; created: boolean }[];
@@ -108,35 +119,38 @@ const stable = (v: unknown): string => JSON.stringify(v, (_k, val) =>
     : val,
 );
 
-export async function diffImport(fiches: Fiche[]): Promise<FicheDiff[]> {
+const stepsOf = (f: AnyFiche) => (f.niveau_contenu === "complete" ? f.reserve.etapes : []);
+const kitOf = (f: AnyFiche): Partial<KitContent> => (f.niveau_contenu === "complete" ? f.reserve.kit : {});
+
+export async function diffImport(fiches: AnyFiche[]): Promise<FicheDiff[]> {
   const existing = await exportFiches(fiches.map((f) => f.id));
   return fiches.map((f) => {
     const cur = existing.get(f.id);
+    const level = f.niveau_contenu === "complete" ? "fiche complète" : "modèle";
     if (!cur) {
       return {
         id: f.id, title: f.titre, kind: "creation", changedFields: [],
-        steps: { added: f.reserve.etapes.map((s) => s.id), modified: [], kept: [] },
-        statusNote: `Créée en brouillon, ${f.acces.gratuit ? "gratuite" : "réservée à l'accès complet"}.`,
+        steps: { added: stepsOf(f).map((s) => s.id), modified: [], kept: [] },
+        statusNote: `Créée en brouillon (${level})${f.niveau_contenu === "complete" ? `, ${f.acces.gratuit ? "gratuite" : "réservée à l'accès complet"}` : ""}.`,
       };
     }
     const changedFields: string[] = [];
-    const top = ["version", "demonstration", "titre", "resume", "categorie", "pays", "date_verification", "difficulte", "competences", "materiel", "filtres"] as const;
+    const top = ["niveau_contenu", "version", "demonstration", "titre", "resume", "categorie", "pays", "date_verification", "difficulte", "competences", "materiel", "filtres", "catalogue"] as const;
     for (const k of top) if (stable(f[k]) !== stable(cur.fiche[k])) changedFields.push(k);
-    for (const k of Object.keys({ ...f.apercu, ...cur.fiche.apercu }) as (keyof Fiche["apercu"])[]) {
-      if (stable(f.apercu[k]) !== stable(cur.fiche.apercu[k])) changedFields.push(`apercu.${k}`);
-    }
-    for (const k of Object.keys({ ...f.reserve.kit, ...cur.fiche.reserve.kit }) as (keyof KitContent)[]) {
-      if (stable(f.reserve.kit[k]) !== stable(cur.fiche.reserve.kit[k])) changedFields.push(`reserve.kit.${k}`);
-    }
-    if (f.acces.gratuit !== cur.isFree) changedFields.push("acces.gratuit (ignoré : réglage conservé)");
-    const curSteps = new Map(cur.fiche.reserve.etapes.map((s) => [s.id, s]));
+    const fa = f.apercu as Record<string, unknown>, ca = cur.fiche.apercu as Record<string, unknown>;
+    for (const k of Object.keys({ ...fa, ...ca })) if (stable(fa[k]) !== stable(ca[k])) changedFields.push(`apercu.${k}`);
+    const fk = kitOf(f) as Record<string, unknown>, ck = kitOf(cur.fiche) as Record<string, unknown>;
+    for (const k of Object.keys({ ...fk, ...ck })) if (stable(fk[k]) !== stable(ck[k])) changedFields.push(`reserve.kit.${k}`);
+    if (f.niveau_contenu === "complete" && f.acces.gratuit !== cur.isFree) changedFields.push("acces.gratuit (ignoré : réglage conservé)");
+    const curList = stepsOf(cur.fiche);
+    const curSteps = new Map(curList.map((s) => [s.id, s]));
     const added: string[] = [], modified: string[] = [];
-    f.reserve.etapes.forEach((s, i) => {
+    stepsOf(f).forEach((s, i) => {
       const old = curSteps.get(s.id);
       if (!old) added.push(s.id);
-      else if (stable(s) !== stable(old) || cur.fiche.reserve.etapes.indexOf(old) !== i) modified.push(s.id);
+      else if (stable(s) !== stable(old) || curList.indexOf(old) !== i) modified.push(s.id);
     });
-    const kept = [...curSteps.keys()].filter((k) => !f.reserve.etapes.some((s) => s.id === k));
+    const kept = [...curSteps.keys()].filter((k) => !stepsOf(f).some((s) => s.id === k));
     const kind = changedFields.filter((c) => !c.startsWith("acces.")).length || added.length || modified.length ? "modification" : "identique";
     return {
       id: f.id, title: f.titre, kind, changedFields, steps: { added, modified, kept },

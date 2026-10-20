@@ -80,53 +80,57 @@ export default async function EditFiche({ params }: PageProps<"/admin/fiches/[sl
         </AdminForm>
       </Section>
 
+      {fiche.niveau_contenu === "modele" ? (
+        <p className="notice notice--info small">Modèle du catalogue : pas d&apos;étapes ni de prompts. Pour en faire une fiche complète, importez-la avec <code>niveau_contenu: &quot;complete&quot;</code> et son kit (docs/IMPORT.md).</p>
+      ) : (
       <Section title={`Étapes, prompts et modèles (${fiche.reserve.etapes.length})`}>
-        <div className="stack">
-          {fiche.reserve.etapes.map((s, i) => (
-            <details key={s.id} className="od-card od-card--flat">
-              <summary style={{ minHeight: 44, display: "flex", alignItems: "center", fontWeight: 600, cursor: "pointer" }}>{i + 1}. {s.titre} <code className="xsmall muted" style={{ marginLeft: 8 }}>{s.id}</code></summary>
-              <div className="stack" style={{ paddingTop: 12 }}>
-                <AdminForm action={saveStep.bind(null, slug, s.id)} submitLabel="Enregistrer l'étape">
-                  <Field label="Titre" name="titre" defaultValue={s.titre} />
-                  <Area label="Objectif" name="objectif" defaultValue={s.objectif} rows={2} />
-                  <div className="grid-cards" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 220px), 1fr))" }}>
-                    <Field label="Outil" name="outil_nom" defaultValue={s.outil.nom} />
-                    <Field label="Lien officiel de l'outil (https)" name="outil_url" type="url" defaultValue={s.outil.url} required={false} />
-                  </div>
-                  <fieldset className="stack-sm">
-                    <legend>Modèles conseillés (n&apos;indiquez que des modèles réellement testés)</legend>
+          <div className="stack">
+            {fiche.reserve.etapes.map((s, i) => (
+              <details key={s.id} className="od-card od-card--flat">
+                <summary style={{ minHeight: 44, display: "flex", alignItems: "center", fontWeight: 600, cursor: "pointer" }}>{i + 1}. {s.titre} <code className="xsmall muted" style={{ marginLeft: 8 }}>{s.id}</code></summary>
+                <div className="stack" style={{ paddingTop: 12 }}>
+                  <AdminForm action={saveStep.bind(null, slug, s.id)} submitLabel="Enregistrer l'étape">
+                    <Field label="Titre" name="titre" defaultValue={s.titre} />
+                    <Area label="Objectif" name="objectif" defaultValue={s.objectif} rows={2} />
                     <div className="grid-cards" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 220px), 1fr))" }}>
-                      <Field label="Minimum : nom" name="min_nom" defaultValue={s.modeles.minimum.nom} required={false} />
-                      <Field label="Minimum : note" name="min_note" defaultValue={s.modeles.minimum.note} required={false} />
-                      <Field label="Recommandé : nom" name="rec_nom" defaultValue={s.modeles.recommande.nom} required={false} />
-                      <Field label="Recommandé : note" name="rec_note" defaultValue={s.modeles.recommande.note} required={false} />
-                      <Field label="Moins coûteux : nom" name="eco_nom" defaultValue={s.modeles.economique?.nom} required={false} />
-                      <Field label="Moins coûteux : note" name="eco_note" defaultValue={s.modeles.economique?.note} required={false} />
-                      <Field label="Date de vérification" name="date_verification" type="date" defaultValue={s.modeles.date_verification} required={false} />
-                      <Field label="Source de la vérification" name="source" defaultValue={s.modeles.source} required={false} />
+                      <Field label="Outil" name="outil_nom" defaultValue={s.outil.nom} />
+                      <Field label="Lien officiel de l'outil (https)" name="outil_url" type="url" defaultValue={s.outil.url} required={false} />
                     </div>
-                  </fieldset>
-                  <Field label="Titre de la console" name="prompt_titre" defaultValue={s.prompt.titre} />
-                  <Area label="Mission (insérée dans les deux modes, sans crochets à remplir)" name="mission" defaultValue={s.prompt.mission} rows={5} />
-                  <Area label="À quoi sert ce prompt ?" name="a_quoi_sert" defaultValue={s.prompt.a_quoi_sert} rows={2} />
-                  <Area label="Comment l'utiliser ?" name="comment_utiliser" defaultValue={s.prompt.comment_utiliser} rows={3} />
-                  <Area label="Méthode de vérification" name="verification" defaultValue={s.verification} rows={2} />
-                </AdminForm>
-                <RetireStepButton projectId={projectId} slug={slug} stepKey={s.id} retired={false} />
+                    <fieldset className="stack-sm">
+                      <legend>Modèles conseillés (n&apos;indiquez que des modèles réellement testés)</legend>
+                      <div className="grid-cards" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 220px), 1fr))" }}>
+                        <Field label="Minimum : nom" name="min_nom" defaultValue={s.modeles.minimum.nom} required={false} />
+                        <Field label="Minimum : note" name="min_note" defaultValue={s.modeles.minimum.note} required={false} />
+                        <Field label="Recommandé : nom" name="rec_nom" defaultValue={s.modeles.recommande.nom} required={false} />
+                        <Field label="Recommandé : note" name="rec_note" defaultValue={s.modeles.recommande.note} required={false} />
+                        <Field label="Moins coûteux : nom" name="eco_nom" defaultValue={s.modeles.economique?.nom} required={false} />
+                        <Field label="Moins coûteux : note" name="eco_note" defaultValue={s.modeles.economique?.note} required={false} />
+                        <Field label="Date de vérification" name="date_verification" type="date" defaultValue={s.modeles.date_verification} required={false} />
+                        <Field label="Source de la vérification" name="source" defaultValue={s.modeles.source} required={false} />
+                      </div>
+                    </fieldset>
+                    <Field label="Titre de la console" name="prompt_titre" defaultValue={s.prompt.titre} />
+                    <Area label="Mission (insérée dans les deux modes, sans crochets à remplir)" name="mission" defaultValue={s.prompt.mission} rows={5} />
+                    <Area label="À quoi sert ce prompt ?" name="a_quoi_sert" defaultValue={s.prompt.a_quoi_sert} rows={2} />
+                    <Area label="Comment l'utiliser ?" name="comment_utiliser" defaultValue={s.prompt.comment_utiliser} rows={3} />
+                    <Area label="Méthode de vérification" name="verification" defaultValue={s.verification} rows={2} />
+                  </AdminForm>
+                  <RetireStepButton projectId={projectId} slug={slug} stepKey={s.id} retired={false} />
+                </div>
+              </details>
+            ))}
+            {retiredSteps.length > 0 && (
+              <div className="notice notice--warn small">
+                <p><strong>Étapes retirées</strong> (masquées, progression conservée) :</p>
+                {retiredSteps.map((k) => (
+                  <div key={k} className="row"><code>{k}</code><RetireStepButton projectId={projectId} slug={slug} stepKey={k} retired /></div>
+                ))}
               </div>
-            </details>
-          ))}
-          {retiredSteps.length > 0 && (
-            <div className="notice notice--warn small">
-              <p><strong>Étapes retirées</strong> (masquées, progression conservée) :</p>
-              {retiredSteps.map((k) => (
-                <div key={k} className="row"><code>{k}</code><RetireStepButton projectId={projectId} slug={slug} stepKey={k} retired /></div>
-              ))}
-            </div>
-          )}
-          <p className="small muted">Pour ajouter une étape ou modifier les prérequis, réglages, livrables et configurations : section « JSON complet » ou import.</p>
-        </div>
-      </Section>
+            )}
+            <p className="small muted">Pour ajouter une étape ou modifier les prérequis, réglages, livrables et configurations : section « JSON complet » ou import.</p>
+          </div>
+        </Section>
+      )}
 
       <Section title={`Visuels (${fiche.apercu.visuels.length})`}>
         <div className="stack">

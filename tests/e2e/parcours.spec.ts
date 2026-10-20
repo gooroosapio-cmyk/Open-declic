@@ -10,19 +10,23 @@ test("catalogue → filtre → fiche → favori → comparaison → kit → prog
   await page.goto("/");
   await page.waitForLoadState("networkidle"); // attendre l'hydratation avant d'interagir
   await expect(page.getByRole("heading", { name: "Trouvez votre déclic" })).toBeVisible();
-  await expect(page.getByText("4 projets")).toBeVisible();
+  await expect(page.getByText("204 projets")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Fiches complètes, prêtes à construire" })).toBeVisible();
 
-  // Filtre : fiches gratuites, budget
+  // Filtre : fiches gratuites, budget (les fiches au budget non renseigné sont signalées)
   await page.locator("summary", { hasText: "Filtres" }).click();
   await page.getByLabel("Fiches gratuites seulement").click();
   await expect(page.getByLabel("Fiches gratuites seulement")).toBeChecked();
-  await expect(page.getByText("2 projets")).toBeVisible();
+  await expect(page.getByText("4 projets", { exact: true })).toBeVisible();
   await page.getByLabel("Budget de lancement disponible").selectOption("25000");
-  await expect(page.getByText("2 projets")).toBeVisible();
+  await expect(page.getByText(/^2 projets · 2 masqués faute de donnée renseignée/)).toBeVisible();
   await page.getByLabel("Budget de lancement disponible").selectOption("0");
-  await expect(page.getByText("1 projet", { exact: true })).toBeVisible();
+  await expect(page.getByText(/^1 projet · 2 masqués faute de donnée renseignée/)).toBeVisible();
+  // Afficher aussi les fiches au budget non renseigné, signalées « à vérifier »
+  await page.getByRole("button", { name: "Les afficher aussi" }).click();
+  await expect(page.getByText("3 projets", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Effacer les filtres" }).first().click();
-  await expect(page.getByText("4 projets")).toBeVisible();
+  await expect(page.getByText("204 projets")).toBeVisible();
 
   // Fiche
   await page.getByRole("link", { name: "Prise de rendez-vous pour salons de coiffure" }).click();

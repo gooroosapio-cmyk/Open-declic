@@ -3,9 +3,11 @@ import { describe, expect, it } from "vitest";
 import { validateImport } from "@/lib/fiche-schema";
 import { buildKitPrompt, buildStepPrompt, type ProjectContext } from "@/lib/prompt-builder";
 
-const r = validateImport(JSON.parse(readFileSync("content/demo-fiches.json", "utf8")), ["saas", "site-web", "application-mobile", "jeu"]);
+const r = validateImport(JSON.parse(readFileSync("content/demo-fiches.json", "utf8")), ["saas-app", "site", "jeu"]);
 if (!r.ok) throw new Error("exemple invalide");
-const f = r.fiches[0];
+const f0 = r.fiches[0];
+if (f0.niveau_contenu !== "complete") throw new Error("fiche complète attendue");
+const f = f0;
 const ctx: ProjectContext = {
   title: f.titre, summary: f.resume, countries: f.pays, difficulty: f.difficulte.niveau, skills: f.competences,
   equipment: f.materiel, launchBudget: f.filtres.budget_lancement, monthlyCost: f.filtres.depenses_mensuelles,

@@ -1,0 +1,11 @@
+import { chromium } from "@playwright/test";
+const b = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+const p = await (await b.newContext()).newPage();
+const st = async (l) => console.log(l, await p.locator('[role=status]').first().textContent(), p.url());
+await p.goto("http://127.0.0.1:3000/");
+await p.waitForLoadState("networkidle");
+await p.locator("summary", { hasText: "Filtres" }).click();
+await p.getByLabel("Fiches complètes seulement (étapes et prompts)").click(); await st("c1");
+await p.getByLabel("Fiches complètes seulement (étapes et prompts)").click(); await st("c2");
+await p.getByLabel("Domaine").selectOption("Sport & jeux"); await st("d");
+await b.close();

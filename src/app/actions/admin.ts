@@ -1,7 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { diffImport, exportFiches, requireAdmin, saveFiches, type FicheDiff } from "@/lib/admin";
-import { ficheSchema, validateImport, type Fiche, type ImportIssue } from "@/lib/fiche-schema";
+import { anyFicheSchema, validateImport, type AnyFiche, type Fiche, type ImportIssue } from "@/lib/fiche-schema";
 import { createClient } from "@/lib/supabase/server";
 
 export type AdminResult = { ok: boolean; message?: string; issues?: ImportIssue[] };
@@ -49,14 +49,14 @@ export async function setProjectFree(projectId: string, slug: string, isFree: bo
 // Édition d'une fiche (toujours validée par le schéma d'import)
 // ---------------------------------------------------------------------------
 
-async function loadFiche(slug: string): Promise<Fiche> {
+async function loadFiche(slug: string): Promise<AnyFiche> {
   const f = (await exportFiches([slug])).get(slug);
   if (!f) throw new Error("Fiche introuvable.");
   return structuredClone(f.fiche);
 }
 
 async function validateAndSave(slug: string, candidate: unknown): Promise<AdminResult> {
-  const parsed = ficheSchema.safeParse(candidate);
+  const parsed = anyFicheSchema.safeParse(candidate);
   if (!parsed.success) return { ok: false, message: "La fiche n'a pas été enregistrée : corrigez les erreurs.", issues: issuesFromZod(slug, parsed.error) };
   if (parsed.data.id !== slug) return { ok: false, message: "L'identifiant stable d'une fiche ne peut pas être modifié.", issues: [{ fiche: slug, champ: "id", message: "Identifiant modifié." }] };
   if (!(await knownCategories()).includes(parsed.data.categorie)) {
@@ -105,6 +105,7 @@ export async function saveMainInfo(slug: string, _: AdminResult, form: FormData)
 export async function saveStep(slug: string, stepKey: string, _: AdminResult, form: FormData): Promise<AdminResult> {
   await requireAdmin();
   const fiche = await loadFiche(slug);
+  if (fiche.niveau_contenu !== "complete") return { ok: false, message: "Un modèle n'a pas d'étapes." };
   const step = fiche.reserve.etapes.find((s) => s.id === stepKey);
   if (!step) return { ok: false, message: "Étape introuvable." };
   const model = (k: string) => ({ nom: str(form, `${k}_nom`) || null, note: str(form, `${k}_note`) || undefined });

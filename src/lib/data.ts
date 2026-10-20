@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { createClient, isSupabaseConfigured } from "./supabase/server";
-import type { FicheApercu, KitContent, StepContent } from "./fiche-schema";
+import type { FicheApercu, KitContent, ModeleApercu, StepContent } from "./fiche-schema";
 import type { ProjectContext } from "./prompt-builder";
 
 export type Viewer = {
@@ -32,9 +32,21 @@ export type ProjectSummary = {
   verifiedAt: string | null;
   updatedAt: string;
   visual: { url: string; alt: string } | null;
+  contentLevel: "complete" | "modele";
+  odNumber: string | null;
+  workName: string | null;
+  domain: string | null;
+  clientType: string | null;
+  aiUsage: string | null;
+  evidence: string | null;
+  featured: boolean;
 };
 
-export type PublicContent = FicheApercu & { difficulte_explication?: string };
+/** Aperçu public : complet pour une fiche, réduit pour un modèle. */
+export type PublicContent = (FicheApercu | (ModeleApercu & Partial<Record<Exclude<keyof FicheApercu, keyof ModeleApercu>, undefined>>)) & {
+  difficulte_explication?: string;
+};
+export const isCompleteApercu = (a: PublicContent): a is FicheApercu & { difficulte_explication?: string } => "client_cible" in a && Boolean(a.client_cible);
 
 export type ProjectDetail = ProjectSummary & {
   apercu: PublicContent;
@@ -47,19 +59,25 @@ export type ReservedContent = {
   steps: (StepContent & { step_key: string; titre: string; position: number })[];
 };
 
-const PROJECT_COLUMNS =
-  "id, slug, status, is_free, is_demo, title, summary, category, countries, difficulty, skills, equipment, launch_budget_min, launch_budget_max, monthly_cost_min, monthly_cost_max, weekly_hours_min, weekly_hours_max, verified_at, updated_at, content_version, public_content";
+const SUMMARY_COLUMNS =
+  "id, slug, status, is_free, is_demo, title, summary, category, countries, difficulty, skills, equipment, launch_budget_min, launch_budget_max, monthly_cost_min, monthly_cost_max, weekly_hours_min, weekly_hours_max, verified_at, updated_at, content_version, content_level, od_number, work_name, domain, client_type, ai_usage, evidence, featured";
+// Le catalogue n'a besoin que des visuels, pas de tout l'aperçu.
+const LIST_COLUMNS = `${SUMMARY_COLUMNS}, visuels:public_content->visuels`;
+const PROJECT_COLUMNS = `${SUMMARY_COLUMNS}, public_content`;
 
 type Row = {
   id: string; slug: string; status: ProjectSummary["status"]; is_free: boolean; is_demo: boolean; title: string;
   summary: string; category: string; countries: string[]; difficulty: string; skills: string[]; equipment: string[];
   launch_budget_min: number | null; launch_budget_max: number | null; monthly_cost_min: number | null;
   monthly_cost_max: number | null; weekly_hours_min: number | null; weekly_hours_max: number | null;
-  verified_at: string | null; updated_at: string; content_version: string; public_content: PublicContent;
+  verified_at: string | null; updated_at: string; content_version: string; public_content?: PublicContent;
+  visuels?: { url: string; alt: string }[] | null;
+  content_level: "complete" | "modele"; od_number: string | null; work_name: string | null; domain: string | null;
+  client_type: string | null; ai_usage: string | null; evidence: string | null; featured: boolean;
 };
 
 function toSummary(r: Row): ProjectSummary {
-  const v = r.public_content?.visuels?.[0];
+  const v = (r.visuels ?? r.public_content?.visuels)?.[0];
   return {
     id: r.id, slug: r.slug, status: r.status, isFree: r.is_free, isDemo: r.is_demo, title: r.title,
     summary: r.summary, category: r.category, countries: r.countries, difficulty: r.difficulty,
@@ -69,6 +87,8 @@ function toSummary(r: Row): ProjectSummary {
     weeklyHours: { min: r.weekly_hours_min, max: r.weekly_hours_max },
     verifiedAt: r.verified_at, updatedAt: r.updated_at,
     visual: v ? { url: v.url, alt: v.alt } : null,
+    contentLevel: r.content_level, odNumber: r.od_number, workName: r.work_name, domain: r.domain,
+    clientType: r.client_type, aiUsage: r.ai_usage, evidence: r.evidence, featured: r.featured,
   };
 }
 
@@ -103,7 +123,7 @@ export const listPublishedProjects = cache(async (): Promise<ProjectSummary[]> =
   if (!isSupabaseConfigured()) return [];
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("projects").select(PROJECT_COLUMNS).eq("status", "published").order("title");
+    .from("projects").select(LIST_COLUMNS).eq("status", "published").order("od_number", { nullsFirst: false }).order("title");
   if (error) throw new DataError("Impossible de charger le catalogue.");
   return (data as Row[]).map(toSummary);
 });
@@ -118,7 +138,7 @@ export const getProject = cache(async (slug: string): Promise<ProjectDetail | nu
   const row = data as Row;
   const { data: outline, error: e2 } = await supabase.rpc("project_outline", { p_project: row.id });
   if (e2) throw new DataError("Impossible de charger le plan de la fiche.");
-  return { ...toSummary(row), apercu: row.public_content, contentVersion: row.content_version, outline: outline ?? [] };
+  return { ...toSummary(row), apercu: row.public_content!, contentVersion: row.content_version, outline: outline ?? [] };
 });
 
 /**
@@ -147,9 +167,10 @@ export function toPromptContext(p: ProjectDetail): ProjectContext {
   return {
     title: p.title, summary: p.summary, countries: p.countries, difficulty: p.difficulty, skills: p.skills,
     equipment: p.equipment, launchBudget: p.launchBudget, monthlyCost: p.monthlyCost, weeklyHours: p.weeklyHours,
-    targetClient: p.apercu.client_cible, problem: p.apercu.probleme, offer: p.apercu.offre,
+    targetClient: p.apercu.client_cible ?? "", problem: p.apercu.probleme, offer: p.apercu.offre ?? p.summary,
     localAdaptation: p.apercu.adaptation_locale,
-    aiRole: `${p.apercu.role_ia.construction} ${p.apercu.role_ia.fonctionnement}`,
+    aiRole: p.apercu.role_ia ? `${p.apercu.role_ia.construction} ${p.apercu.role_ia.fonctionnement}` : "",
+    workName: p.workName, odNumber: p.odNumber,
   };
 }
 
@@ -196,8 +217,8 @@ export type MyProject = ProjectSummary & {
 export async function getMyProjects(): Promise<MyProject[]> {
   const supabase = await createClient();
   const [fav, started, progress] = await Promise.all([
-    supabase.from("favorites").select(`project_id, projects(${PROJECT_COLUMNS})`).order("created_at", { ascending: false }),
-    supabase.from("user_projects").select(`project_id, started_at, updated_at, projects(${PROJECT_COLUMNS})`).order("updated_at", { ascending: false }),
+    supabase.from("favorites").select(`project_id, projects(${SUMMARY_COLUMNS})`).order("created_at", { ascending: false }),
+    supabase.from("user_projects").select(`project_id, started_at, updated_at, projects(${SUMMARY_COLUMNS})`).order("updated_at", { ascending: false }),
     supabase.from("step_progress").select("project_id, step_key"),
   ]);
   if (fav.error || started.error || progress.error) throw new DataError("Impossible de charger vos projets.");

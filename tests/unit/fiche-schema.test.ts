@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { validateImport } from "@/lib/fiche-schema";
 
-const CATS = ["saas", "site-web", "application-mobile", "jeu"];
+const CATS = ["saas-app", "site", "jeu"];
 const demo = () => JSON.parse(readFileSync("content/demo-fiches.json", "utf8"));
 
 describe("validation de l'import", () => {
@@ -56,6 +56,27 @@ describe("validation de l'import", () => {
     d.fiches[0].titr = "x";
     const r = validateImport(d, CATS);
     expect(r.ok).toBe(false);
+  });
+
+  it("accepte encore le format 1.0 (fiches complètes sans repères de catalogue)", () => {
+    const d = demo();
+    d.schema_version = "1.0";
+    for (const f of d.fiches) delete f.niveau_contenu;
+    const r = validateImport(d, CATS);
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.fiches.every((f) => f.niveau_contenu === "complete")).toBe(true);
+  });
+
+  it("refuse un niveau de contenu inconnu et un modèle avec contenu réservé", () => {
+    const d = demo();
+    d.fiches[0].niveau_contenu = "brouillon";
+    const r1 = validateImport(d, CATS);
+    expect(r1.ok).toBe(false);
+    const cat = JSON.parse(readFileSync("content/catalogue-v1.json", "utf8"));
+    const modele = cat.fiches.find((f: { niveau_contenu: string }) => f.niveau_contenu === "modele");
+    modele.reserve = { kit: {}, etapes: [] };
+    const r2 = validateImport({ schema_version: "1.1", fiches: [modele] }, CATS);
+    expect(r2.ok).toBe(false);
   });
 
   it("conserve un montant inconnu comme null", () => {

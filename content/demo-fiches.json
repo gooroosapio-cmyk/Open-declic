@@ -1,26 +1,47 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "fiches": [
     {
       "id": "demo-rendez-vous-salons",
+      "niveau_contenu": "complete",
       "version": "1",
       "demonstration": true,
       "titre": "Prise de rendez-vous pour salons de coiffure",
       "resume": "Un petit logiciel en ligne qui permet aux clientes de réserver un créneau dans un salon et au salon de suivre son planning.",
-      "categorie": "saas",
-      "pays": ["CI", "SN"],
+      "categorie": "saas-app",
+      "pays": [
+        "CI",
+        "SN"
+      ],
       "date_verification": null,
-      "acces": { "gratuit": true },
+      "acces": {
+        "gratuit": true
+      },
       "difficulte": {
         "niveau": "intermediaire",
         "explication": "Il faut gérer des comptes, des créneaux et des données partagées. L'IA écrit l'essentiel du code, mais vous devez configurer une base de données et un hébergement, puis tester avec de vrais salons."
       },
-      "competences": ["gestion", "vente"],
-      "materiel": ["ordinateur", "internet"],
+      "competences": [
+        "gestion",
+        "vente"
+      ],
+      "materiel": [
+        "ordinateur",
+        "internet"
+      ],
       "filtres": {
-        "budget_lancement": { "min": 15000, "max": 60000 },
-        "depenses_mensuelles": { "min": 0, "max": 25000 },
-        "heures_hebdo": { "min": 6, "max": 12 }
+        "budget_lancement": {
+          "min": 15000,
+          "max": 60000
+        },
+        "depenses_mensuelles": {
+          "min": 0,
+          "max": 25000
+        },
+        "heures_hebdo": {
+          "min": 6,
+          "max": 12
+        }
       },
       "apercu": {
         "client_cible": "Salons de coiffure et instituts de beauté de quartier qui gèrent aujourd'hui leurs rendez-vous par téléphone ou messagerie.",
@@ -51,16 +72,61 @@
           "Un rappel réduit les rendez-vous manqués."
         ],
         "outils": [
-          { "nom": "Assistant IA conversationnel", "url": null, "role": "Rédiger le cahier des charges, le code et les textes.", "obligatoire": true, "cout": "Gratuit ou payant selon l'offre choisie, à vérifier." },
-          { "nom": "Supabase", "url": "https://supabase.com", "role": "Base de données et comptes des salons.", "obligatoire": true, "cout": "Offre gratuite limitée ; offre payante si l'usage augmente. À vérifier." },
-          { "nom": "Vercel", "url": "https://vercel.com", "role": "Mise en ligne de l'application.", "obligatoire": false, "cout": "L'offre gratuite est réservée à un usage non commercial : prévoir une offre adaptée. À vérifier." }
+          {
+            "nom": "Assistant IA conversationnel",
+            "url": null,
+            "role": "Rédiger le cahier des charges, le code et les textes.",
+            "obligatoire": true,
+            "cout": "Gratuit ou payant selon l'offre choisie, à vérifier."
+          },
+          {
+            "nom": "Supabase",
+            "url": "https://supabase.com",
+            "role": "Base de données et comptes des salons.",
+            "obligatoire": true,
+            "cout": "Offre gratuite limitée ; offre payante si l'usage augmente. À vérifier."
+          },
+          {
+            "nom": "Vercel",
+            "url": "https://vercel.com",
+            "role": "Mise en ligne de l'application.",
+            "obligatoire": false,
+            "cout": "L'offre gratuite est réservée à un usage non commercial : prévoir une offre adaptée. À vérifier."
+          }
         ],
         "budget": {
           "lignes": [
-            { "libelle": "Nom de domaine", "min": 8000, "max": 15000, "recurrence": "annuel", "nature": "estimation", "hypothese": "Extension courante, prix variable selon le registrar." },
-            { "libelle": "Abonnement à un assistant IA (facultatif)", "min": 0, "max": 15000, "recurrence": "mensuel", "nature": "estimation" },
-            { "libelle": "Hébergement adapté à un usage commercial", "min": null, "max": null, "recurrence": "mensuel", "nature": "hypothese", "hypothese": "Montant inconnu tant que l'offre n'est pas choisie." },
-            { "libelle": "Envoi des rappels par SMS", "min": null, "max": null, "recurrence": "usage", "nature": "hypothese", "hypothese": "Dépend du fournisseur et du volume." }
+            {
+              "libelle": "Nom de domaine",
+              "min": 8000,
+              "max": 15000,
+              "recurrence": "annuel",
+              "nature": "estimation",
+              "hypothese": "Extension courante, prix variable selon le registrar."
+            },
+            {
+              "libelle": "Abonnement à un assistant IA (facultatif)",
+              "min": 0,
+              "max": 15000,
+              "recurrence": "mensuel",
+              "nature": "estimation"
+            },
+            {
+              "libelle": "Hébergement adapté à un usage commercial",
+              "min": null,
+              "max": null,
+              "recurrence": "mensuel",
+              "nature": "hypothese",
+              "hypothese": "Montant inconnu tant que l'offre n'est pas choisie."
+            },
+            {
+              "libelle": "Envoi des rappels par SMS",
+              "min": null,
+              "max": null,
+              "recurrence": "usage",
+              "nature": "hypothese",
+              "hypothese": "Dépend du fournisseur et du volume."
+            }
           ],
           "note": "Les montants sont des estimations de démonstration. Un montant non renseigné est inconnu, pas nul."
         },
@@ -76,16 +142,35 @@
         },
         "test_demande": {
           "description": "Présenter une maquette à dix salons et proposer un essai gratuit de deux semaines.",
-          "criteres_poursuite": ["Au moins trois salons utilisent l'essai chaque semaine.", "Au moins un salon accepte un tarif."],
-          "criteres_revision": ["Aucun salon ne réserve plus d'une fois.", "Les salons jugent l'outil plus lent que le téléphone."]
+          "criteres_poursuite": [
+            "Au moins trois salons utilisent l'essai chaque semaine.",
+            "Au moins un salon accepte un tarif."
+          ],
+          "criteres_revision": [
+            "Aucun salon ne réserve plus d'une fois.",
+            "Les salons jugent l'outil plus lent que le téléphone."
+          ]
         },
         "livrables": [
-          { "nom": "Cahier des charges", "format": ".md" },
-          { "nom": "Application en ligne", "format": "URL et dépôt de code" },
-          { "nom": "Guide de prise en main pour les salons", "format": ".pdf" }
+          {
+            "nom": "Cahier des charges",
+            "format": ".md"
+          },
+          {
+            "nom": "Application en ligne",
+            "format": "URL et dépôt de code"
+          },
+          {
+            "nom": "Guide de prise en main pour les salons",
+            "format": ".pdf"
+          }
         ],
         "visuels": [
-          { "url": "/assets/open-declic/03_Illustrations/02_studio_contenus.svg", "alt": "Illustration : une personne travaille sur un ordinateur entourée d'éléments de planning.", "legende": "Illustration d'ambiance, pas une capture du produit." }
+          {
+            "url": "/assets/open-declic/03_Illustrations/02_studio_contenus.svg",
+            "alt": "Illustration : une personne travaille sur un ordinateur entourée d'éléments de planning.",
+            "legende": "Illustration d'ambiance, pas une capture du produit."
+          }
         ],
         "risques": [
           "Données personnelles des clientes : prévoir le consentement et la sécurité des accès.",
@@ -133,7 +218,11 @@
             }
           ],
           "ressources": [
-            { "titre": "Documentation Supabase", "url": "https://supabase.com/docs", "description": "Guides officiels pour la base de données et l'authentification." }
+            {
+              "titre": "Documentation Supabase",
+              "url": "https://supabase.com/docs",
+              "description": "Guides officiels pour la base de données et l'authentification."
+            }
           ]
         },
         "etapes": [
@@ -141,61 +230,119 @@
             "id": "decrire-ecrans",
             "titre": "Décrire les écrans",
             "objectif": "Obtenir la liste des écrans de la première version et leurs textes, avant de coder.",
-            "prerequis": ["Avoir le résumé de transmission du cadrage."],
-            "outil": { "nom": "Claude", "url": "https://claude.ai" },
+            "prerequis": [
+              "Avoir le résumé de transmission du cadrage."
+            ],
+            "outil": {
+              "nom": "Claude",
+              "url": "https://claude.ai"
+            },
             "modeles": {
-              "minimum": { "nom": null, "note": "À tester avant publication." },
-              "recommande": { "nom": null, "note": "À tester avant publication." },
+              "minimum": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
+              "recommande": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
               "economique": null,
               "date_verification": null,
               "source": null
             },
-            "reglages": ["Ouvrez une nouvelle conversation dédiée au projet."],
+            "reglages": [
+              "Ouvrez une nouvelle conversation dédiée au projet."
+            ],
             "prompt": {
               "titre": "Décrire les écrans",
               "mission": "Agis comme un concepteur d'interfaces mobiles. Décris uniquement les écrans nécessaires : réservation côté cliente, planning côté salon, connexion. Pour chaque écran, donne son objectif, les éléments visibles, l'action principale et les états vide, chargement, erreur et succès. Propose les textes exacts en français.",
               "a_quoi_sert": "Ce prompt produit une description précise des écrans, que l'IA utilisera ensuite pour écrire le code.",
               "comment_utiliser": "Collez-le dans votre assistant IA avec le résumé de transmission du cadrage. Enregistrez la spécification obtenue dans un fichier ecrans.md."
             },
-            "resultat_attendu": { "description": "Une spécification des écrans avec leurs textes et leurs états.", "format": "Fichier .md" },
+            "resultat_attendu": {
+              "description": "Une spécification des écrans avec leurs textes et leurs états.",
+              "format": "Fichier .md"
+            },
             "verification": "Chaque écran a une action principale claire et des textes utilisables tels quels.",
             "etape_suivante": "Construire la première version.",
-            "livrables": [{ "nom": "Spécification des écrans", "format": ".md" }]
+            "livrables": [
+              {
+                "nom": "Spécification des écrans",
+                "format": ".md"
+              }
+            ]
           },
           {
             "id": "construire-version",
             "titre": "Construire la première version",
             "objectif": "Obtenir une application qui fonctionne en local, avec réservation et planning.",
-            "prerequis": ["Spécification des écrans validée.", "Un ordinateur avec un éditeur de code ou un outil de construction assisté par IA."],
-            "outil": { "nom": "Claude", "url": "https://claude.ai" },
+            "prerequis": [
+              "Spécification des écrans validée.",
+              "Un ordinateur avec un éditeur de code ou un outil de construction assisté par IA."
+            ],
+            "outil": {
+              "nom": "Claude",
+              "url": "https://claude.ai"
+            },
             "modeles": {
-              "minimum": { "nom": null, "note": "À tester avant publication." },
-              "recommande": { "nom": null, "note": "À tester avant publication." },
+              "minimum": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
+              "recommande": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
               "economique": null,
               "date_verification": null,
               "source": null
             },
-            "reglages": ["Joignez le fichier ecrans.md à la conversation."],
+            "reglages": [
+              "Joignez le fichier ecrans.md à la conversation."
+            ],
             "prompt": {
               "titre": "Construire la première version",
               "mission": "Agis comme un développeur. Construis la première version de l'application à partir de la spécification jointe, avec une base Supabase pour les salons, prestations et rendez-vous. Fournis les fichiers complets, les migrations SQL avec règles d'accès, la liste des variables d'environnement sans valeurs secrètes et la procédure de démarrage.",
               "a_quoi_sert": "Ce prompt fait produire le code de la première version, prêt à être testé sur votre ordinateur.",
               "comment_utiliser": "Collez-le dans votre assistant IA avec le fichier ecrans.md. Suivez la procédure de démarrage qu'il fournit. Signalez-lui chaque erreur avant de continuer."
             },
-            "resultat_attendu": { "description": "Le code de l'application et sa procédure de démarrage.", "format": "Dépôt de code ou archive .zip" },
+            "resultat_attendu": {
+              "description": "Le code de l'application et sa procédure de démarrage.",
+              "format": "Dépôt de code ou archive .zip"
+            },
             "verification": "Une réservation faite depuis la page cliente apparaît dans le planning du salon.",
             "etape_suivante": "Tester la demande avec de vrais salons.",
-            "livrables": [{ "nom": "Code source", "format": "Dépôt ou .zip" }, { "nom": "Migrations SQL", "format": ".sql" }]
+            "livrables": [
+              {
+                "nom": "Code source",
+                "format": "Dépôt ou .zip"
+              },
+              {
+                "nom": "Migrations SQL",
+                "format": ".sql"
+              }
+            ]
           },
           {
             "id": "tester-demande",
             "titre": "Tester la demande",
             "objectif": "Vérifier avec de vrais salons que l'outil est utile avant d'investir davantage.",
-            "prerequis": ["Une version en ligne ou une maquette cliquable."],
-            "outil": { "nom": "ChatGPT", "url": "https://chatgpt.com" },
+            "prerequis": [
+              "Une version en ligne ou une maquette cliquable."
+            ],
+            "outil": {
+              "nom": "ChatGPT",
+              "url": "https://chatgpt.com"
+            },
             "modeles": {
-              "minimum": { "nom": null, "note": "À tester avant publication." },
-              "recommande": { "nom": null, "note": "À tester avant publication." },
+              "minimum": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
+              "recommande": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
               "economique": null,
               "date_verification": null,
               "source": null
@@ -207,34 +354,63 @@
               "a_quoi_sert": "Ce prompt prépare tout ce qu'il faut pour proposer un essai à des salons et mesurer leur intérêt réel.",
               "comment_utiliser": "Collez-le dans votre assistant IA. Adaptez le message à votre façon de parler, puis contactez les salons vous-même. Notez les résultats dans la grille."
             },
-            "resultat_attendu": { "description": "Un message de présentation, une grille de suivi et un questionnaire de fin d'essai.", "format": "Fichier .md et tableau .csv" },
+            "resultat_attendu": {
+              "description": "Un message de présentation, une grille de suivi et un questionnaire de fin d'essai.",
+              "format": "Fichier .md et tableau .csv"
+            },
             "verification": "Vous pouvez dire, chiffres à l'appui, si les critères de poursuite sont atteints.",
             "etape_suivante": "Décider de poursuivre, réviser ou arrêter le projet.",
-            "livrables": [{ "nom": "Grille de suivi", "format": ".csv" }]
+            "livrables": [
+              {
+                "nom": "Grille de suivi",
+                "format": ".csv"
+              }
+            ]
           }
         ]
       }
     },
     {
       "id": "demo-site-vitrine-maquis",
+      "niveau_contenu": "complete",
       "version": "1",
       "demonstration": true,
       "titre": "Site vitrine et menu en ligne pour maquis",
       "resume": "Créer pour des maquis et petits restaurants un site simple avec le menu, les horaires, la localisation et un bouton pour commander par message.",
-      "categorie": "site-web",
-      "pays": ["CI"],
+      "categorie": "site",
+      "pays": [
+        "CI"
+      ],
       "date_verification": null,
-      "acces": { "gratuit": true },
+      "acces": {
+        "gratuit": true
+      },
       "difficulte": {
         "niveau": "debutant",
         "explication": "Le site ne stocke pas de données : pas de base de données ni de comptes. L'IA produit les pages ; vous les mettez en ligne en suivant des étapes guidées."
       },
-      "competences": ["redaction", "vente"],
-      "materiel": ["smartphone", "ordinateur", "internet"],
+      "competences": [
+        "redaction",
+        "vente"
+      ],
+      "materiel": [
+        "smartphone",
+        "ordinateur",
+        "internet"
+      ],
       "filtres": {
-        "budget_lancement": { "min": 0, "max": 20000 },
-        "depenses_mensuelles": { "min": 0, "max": 5000 },
-        "heures_hebdo": { "min": 3, "max": 8 }
+        "budget_lancement": {
+          "min": 0,
+          "max": 20000
+        },
+        "depenses_mensuelles": {
+          "min": 0,
+          "max": 5000
+        },
+        "heures_hebdo": {
+          "min": 3,
+          "max": 8
+        }
       },
       "apercu": {
         "client_cible": "Maquis, restaurants de quartier et vendeurs de plats à emporter sans présence en ligne.",
@@ -255,16 +431,46 @@
           }
         ],
         "adaptation_locale": "Commande par messagerie plutôt que paiement en ligne, plan d'accès avec repères connus, menu facile à changer chaque jour.",
-        "alternatives": ["Proposer seulement une fiche d'établissement sur une carte en ligne, sans site."],
-        "hypotheses": ["Les gérants acceptent de payer un forfait unique.", "Un menu en ligne augmente les commandes."],
+        "alternatives": [
+          "Proposer seulement une fiche d'établissement sur une carte en ligne, sans site."
+        ],
+        "hypotheses": [
+          "Les gérants acceptent de payer un forfait unique.",
+          "Un menu en ligne augmente les commandes."
+        ],
         "outils": [
-          { "nom": "Assistant IA conversationnel", "url": null, "role": "Rédiger les textes et produire les pages.", "obligatoire": true, "cout": "Gratuit ou payant selon l'offre, à vérifier." },
-          { "nom": "Hébergement de site statique", "url": null, "role": "Mettre la page en ligne.", "obligatoire": true, "cout": "Offres gratuites limitées existantes ; vérifier les conditions d'usage commercial." }
+          {
+            "nom": "Assistant IA conversationnel",
+            "url": null,
+            "role": "Rédiger les textes et produire les pages.",
+            "obligatoire": true,
+            "cout": "Gratuit ou payant selon l'offre, à vérifier."
+          },
+          {
+            "nom": "Hébergement de site statique",
+            "url": null,
+            "role": "Mettre la page en ligne.",
+            "obligatoire": true,
+            "cout": "Offres gratuites limitées existantes ; vérifier les conditions d'usage commercial."
+          }
         ],
         "budget": {
           "lignes": [
-            { "libelle": "Nom de domaine (facultatif)", "min": 8000, "max": 15000, "recurrence": "annuel", "nature": "estimation" },
-            { "libelle": "Hébergement", "min": null, "max": null, "recurrence": "mensuel", "nature": "hypothese", "hypothese": "Dépend de l'offre choisie et des conditions commerciales." }
+            {
+              "libelle": "Nom de domaine (facultatif)",
+              "min": 8000,
+              "max": 15000,
+              "recurrence": "annuel",
+              "nature": "estimation"
+            },
+            {
+              "libelle": "Hébergement",
+              "min": null,
+              "max": null,
+              "recurrence": "mensuel",
+              "nature": "hypothese",
+              "hypothese": "Dépend de l'offre choisie et des conditions commerciales."
+            }
           ],
           "note": "Montants de démonstration."
         },
@@ -280,17 +486,33 @@
         },
         "test_demande": {
           "description": "Réaliser gratuitement le site d'un premier maquis, puis le présenter à dix autres.",
-          "criteres_poursuite": ["Au moins deux gérants acceptent un devis."],
-          "criteres_revision": ["Les gérants ne voient pas l'intérêt d'un site par rapport à leur messagerie."]
+          "criteres_poursuite": [
+            "Au moins deux gérants acceptent un devis."
+          ],
+          "criteres_revision": [
+            "Les gérants ne voient pas l'intérêt d'un site par rapport à leur messagerie."
+          ]
         },
         "livrables": [
-          { "nom": "Page web en ligne", "format": "URL" },
-          { "nom": "Fichiers du site", "format": ".zip" }
+          {
+            "nom": "Page web en ligne",
+            "format": "URL"
+          },
+          {
+            "nom": "Fichiers du site",
+            "format": ".zip"
+          }
         ],
         "visuels": [
-          { "url": "/assets/open-declic/03_Illustrations/03_boutique_modeles.svg", "alt": "Illustration : un ordinateur portable affiche une boutique en ligne.", "legende": "Illustration d'ambiance." }
+          {
+            "url": "/assets/open-declic/03_Illustrations/03_boutique_modeles.svg",
+            "alt": "Illustration : un ordinateur portable affiche une boutique en ligne.",
+            "legende": "Illustration d'ambiance."
+          }
         ],
-        "risques": ["Photos et marques : obtenir l'accord du gérant pour leur utilisation."],
+        "risques": [
+          "Photos et marques : obtenir l'accord du gérant pour leur utilisation."
+        ],
         "limites": "Fiche de démonstration non vérifiée sur le terrain."
       },
       "reserve": {
@@ -327,11 +549,22 @@
             "id": "rediger-contenu",
             "titre": "Rédiger le contenu",
             "objectif": "Obtenir les textes de la page : présentation, menu, horaires et accès.",
-            "prerequis": ["Menu, horaires et adresse du maquis."],
-            "outil": { "nom": "Gemini", "url": "https://gemini.google.com" },
+            "prerequis": [
+              "Menu, horaires et adresse du maquis."
+            ],
+            "outil": {
+              "nom": "Gemini",
+              "url": "https://gemini.google.com"
+            },
             "modeles": {
-              "minimum": { "nom": null, "note": "À tester avant publication." },
-              "recommande": { "nom": null, "note": "À tester avant publication." },
+              "minimum": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
+              "recommande": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
               "economique": null,
               "date_verification": null,
               "source": null
@@ -343,59 +576,112 @@
               "a_quoi_sert": "Ce prompt produit tous les textes du site, prêts à être intégrés.",
               "comment_utiliser": "Collez-le dans votre assistant IA, puis donnez-lui le menu, les horaires et l'adresse quand il les demande. Enregistrez le résultat dans contenu.md."
             },
-            "resultat_attendu": { "description": "Les textes complets de la page.", "format": "Fichier .md" },
+            "resultat_attendu": {
+              "description": "Les textes complets de la page.",
+              "format": "Fichier .md"
+            },
             "verification": "Le gérant relit et valide les textes et les prix.",
             "etape_suivante": "Produire la page.",
-            "livrables": [{ "nom": "Contenu de la page", "format": ".md" }]
+            "livrables": [
+              {
+                "nom": "Contenu de la page",
+                "format": ".md"
+              }
+            ]
           },
           {
             "id": "produire-page",
             "titre": "Produire la page",
             "objectif": "Obtenir une page web prête à mettre en ligne.",
-            "prerequis": ["Contenu validé par le gérant.", "Quelques photos autorisées."],
-            "outil": { "nom": "Claude", "url": "https://claude.ai" },
+            "prerequis": [
+              "Contenu validé par le gérant.",
+              "Quelques photos autorisées."
+            ],
+            "outil": {
+              "nom": "Claude",
+              "url": "https://claude.ai"
+            },
             "modeles": {
-              "minimum": { "nom": null, "note": "À tester avant publication." },
-              "recommande": { "nom": null, "note": "À tester avant publication." },
+              "minimum": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
+              "recommande": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
               "economique": null,
               "date_verification": null,
               "source": null
             },
-            "reglages": ["Joignez le fichier contenu.md."],
+            "reglages": [
+              "Joignez le fichier contenu.md."
+            ],
             "prompt": {
               "titre": "Produire la page web",
               "mission": "Agis comme un intégrateur web. Produis une page HTML et CSS unique, légère et lisible sur téléphone, à partir du contenu joint. Le bouton de commande ouvre une conversation de messagerie. Fournis les fichiers complets et explique comment les tester sur un téléphone.",
               "a_quoi_sert": "Ce prompt transforme le contenu validé en une vraie page web.",
               "comment_utiliser": "Collez-le avec le fichier contenu.md. Enregistrez les fichiers obtenus dans un dossier, ouvrez la page dans un navigateur, puis passez à la mise en ligne."
             },
-            "resultat_attendu": { "description": "Les fichiers de la page web.", "format": "Fichiers .html et .css" },
+            "resultat_attendu": {
+              "description": "Les fichiers de la page web.",
+              "format": "Fichiers .html et .css"
+            },
             "verification": "La page s'ouvre sans erreur sur un téléphone et le bouton fonctionne.",
             "etape_suivante": "Mettre la page en ligne puis la présenter à d'autres maquis.",
-            "livrables": [{ "nom": "Fichiers du site", "format": ".zip" }]
+            "livrables": [
+              {
+                "nom": "Fichiers du site",
+                "format": ".zip"
+              }
+            ]
           }
         ]
       }
     },
     {
       "id": "demo-carnet-couture",
+      "niveau_contenu": "complete",
       "version": "1",
       "demonstration": true,
       "titre": "Carnet de commandes pour couturiers",
       "resume": "Une application mobile simple pour noter les mesures, les commandes, les acomptes et les dates de livraison des clients d'un atelier de couture.",
-      "categorie": "application-mobile",
-      "pays": ["CI", "CM", "SN"],
+      "categorie": "saas-app",
+      "pays": [
+        "CI",
+        "CM",
+        "SN"
+      ],
       "date_verification": null,
-      "acces": { "gratuit": false },
+      "acces": {
+        "gratuit": false
+      },
       "difficulte": {
         "niveau": "intermediaire",
         "explication": "L'application conserve des données sur le téléphone ou en ligne. Il faut tester soigneusement pour ne perdre aucune commande."
       },
-      "competences": ["gestion", "vente"],
-      "materiel": ["ordinateur", "smartphone", "internet"],
+      "competences": [
+        "gestion",
+        "vente"
+      ],
+      "materiel": [
+        "ordinateur",
+        "smartphone",
+        "internet"
+      ],
       "filtres": {
-        "budget_lancement": { "min": 10000, "max": 50000 },
-        "depenses_mensuelles": { "min": null, "max": null },
-        "heures_hebdo": { "min": 5, "max": 10 }
+        "budget_lancement": {
+          "min": 10000,
+          "max": 50000
+        },
+        "depenses_mensuelles": {
+          "min": null,
+          "max": null
+        },
+        "heures_hebdo": {
+          "min": 5,
+          "max": 10
+        }
       },
       "apercu": {
         "client_cible": "Couturiers et ateliers de couture qui suivent leurs commandes dans un cahier.",
@@ -416,15 +702,39 @@
           }
         ],
         "adaptation_locale": "Fonctionner avec une connexion irrégulière, montants en FCFA, rappels de livraison par messagerie.",
-        "alternatives": ["Un modèle de tableur partagé, plus simple à lancer."],
-        "hypotheses": ["Les couturiers utilisent un smartphone au quotidien.", "Ils acceptent de saisir leurs commandes."],
+        "alternatives": [
+          "Un modèle de tableur partagé, plus simple à lancer."
+        ],
+        "hypotheses": [
+          "Les couturiers utilisent un smartphone au quotidien.",
+          "Ils acceptent de saisir leurs commandes."
+        ],
         "outils": [
-          { "nom": "Assistant IA conversationnel", "url": null, "role": "Concevoir et coder l'application.", "obligatoire": true, "cout": "À vérifier selon l'offre." }
+          {
+            "nom": "Assistant IA conversationnel",
+            "url": null,
+            "role": "Concevoir et coder l'application.",
+            "obligatoire": true,
+            "cout": "À vérifier selon l'offre."
+          }
         ],
         "budget": {
           "lignes": [
-            { "libelle": "Publication sur une boutique d'applications", "min": null, "max": null, "recurrence": "unique", "nature": "hypothese", "hypothese": "Frais d'inscription développeur à vérifier selon la boutique." },
-            { "libelle": "Assistant IA (facultatif)", "min": 0, "max": 15000, "recurrence": "mensuel", "nature": "estimation" }
+            {
+              "libelle": "Publication sur une boutique d'applications",
+              "min": null,
+              "max": null,
+              "recurrence": "unique",
+              "nature": "hypothese",
+              "hypothese": "Frais d'inscription développeur à vérifier selon la boutique."
+            },
+            {
+              "libelle": "Assistant IA (facultatif)",
+              "min": 0,
+              "max": 15000,
+              "recurrence": "mensuel",
+              "nature": "estimation"
+            }
           ],
           "note": "Les dépenses mensuelles sont inconnues tant que le mode de stockage n'est pas choisi."
         },
@@ -440,14 +750,29 @@
         },
         "test_demande": {
           "description": "Faire utiliser une maquette à cinq couturiers pendant une semaine.",
-          "criteres_poursuite": ["Trois couturiers continuent à l'utiliser après une semaine."],
-          "criteres_revision": ["La saisie est jugée trop longue."]
+          "criteres_poursuite": [
+            "Trois couturiers continuent à l'utiliser après une semaine."
+          ],
+          "criteres_revision": [
+            "La saisie est jugée trop longue."
+          ]
         },
-        "livrables": [{ "nom": "Application installable", "format": "Lien de test ou fichier d'installation" }],
-        "visuels": [
-          { "url": "/assets/open-declic/03_Illustrations/04_parcours_etapes.svg", "alt": "Illustration : un parcours en étapes jusqu'à un objectif.", "legende": "Illustration d'ambiance." }
+        "livrables": [
+          {
+            "nom": "Application installable",
+            "format": "Lien de test ou fichier d'installation"
+          }
         ],
-        "risques": ["Perte de données si aucune sauvegarde n'est prévue."],
+        "visuels": [
+          {
+            "url": "/assets/open-declic/03_Illustrations/04_parcours_etapes.svg",
+            "alt": "Illustration : un parcours en étapes jusqu'à un objectif.",
+            "legende": "Illustration d'ambiance."
+          }
+        ],
+        "risques": [
+          "Perte de données si aucune sauvegarde n'est prévue."
+        ],
         "limites": "Fiche de démonstration non vérifiée."
       },
       "reserve": {
@@ -472,11 +797,22 @@
             "id": "concevoir-ecrans",
             "titre": "Concevoir les écrans",
             "objectif": "Définir les écrans de saisie et de suivi des commandes.",
-            "prerequis": ["Résumé du cadrage."],
-            "outil": { "nom": "ChatGPT", "url": "https://chatgpt.com" },
+            "prerequis": [
+              "Résumé du cadrage."
+            ],
+            "outil": {
+              "nom": "ChatGPT",
+              "url": "https://chatgpt.com"
+            },
             "modeles": {
-              "minimum": { "nom": null, "note": "À tester avant publication." },
-              "recommande": { "nom": null, "note": "À tester avant publication." },
+              "minimum": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
+              "recommande": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
               "economique": null,
               "date_verification": null,
               "source": null
@@ -488,7 +824,10 @@
               "a_quoi_sert": "Ce prompt produit la description des écrans de l'application.",
               "comment_utiliser": "Collez-le avec le résumé du cadrage. Enregistrez le résultat dans ecrans.md."
             },
-            "resultat_attendu": { "description": "Une spécification des écrans.", "format": "Fichier .md" },
+            "resultat_attendu": {
+              "description": "Une spécification des écrans.",
+              "format": "Fichier .md"
+            },
             "verification": "Un couturier comprend chaque écran sans explication.",
             "etape_suivante": "Construire l'application.",
             "livrables": []
@@ -497,56 +836,100 @@
             "id": "construire-application",
             "titre": "Construire l'application",
             "objectif": "Obtenir une version testable sur téléphone.",
-            "prerequis": ["Spécification des écrans."],
-            "outil": { "nom": "Claude", "url": "https://claude.ai" },
+            "prerequis": [
+              "Spécification des écrans."
+            ],
+            "outil": {
+              "nom": "Claude",
+              "url": "https://claude.ai"
+            },
             "modeles": {
-              "minimum": { "nom": null, "note": "À tester avant publication." },
-              "recommande": { "nom": null, "note": "À tester avant publication." },
+              "minimum": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
+              "recommande": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
               "economique": null,
               "date_verification": null,
               "source": null
             },
-            "reglages": ["Joignez ecrans.md."],
+            "reglages": [
+              "Joignez ecrans.md."
+            ],
             "prompt": {
               "titre": "Construire l'application",
               "mission": "Agis comme un développeur mobile. Construis une application web installable sur téléphone qui enregistre les commandes localement, avec export de sauvegarde. Fournis les fichiers complets et la procédure de test sur téléphone.",
               "a_quoi_sert": "Ce prompt produit une première version de l'application à tester.",
               "comment_utiliser": "Collez-le avec ecrans.md, suivez la procédure de test et signalez chaque erreur à l'IA."
             },
-            "resultat_attendu": { "description": "Le code de l'application et la procédure de test.", "format": "Dépôt ou .zip" },
+            "resultat_attendu": {
+              "description": "Le code de l'application et la procédure de test.",
+              "format": "Dépôt ou .zip"
+            },
             "verification": "Une commande saisie est toujours présente après fermeture et réouverture de l'application.",
             "etape_suivante": "Tester avec des couturiers.",
-            "livrables": [{ "nom": "Code source", "format": ".zip" }]
+            "livrables": [
+              {
+                "nom": "Code source",
+                "format": ".zip"
+              }
+            ]
           }
         ]
       }
     },
     {
       "id": "demo-quiz-culture",
+      "niveau_contenu": "complete",
       "version": "1",
       "demonstration": true,
       "titre": "Quiz de culture générale locale",
       "resume": "Un petit jeu de quiz jouable dans le navigateur, sur la culture, la géographie et l'histoire, à partager entre amis.",
       "categorie": "jeu",
-      "pays": ["CI", "FR"],
+      "pays": [
+        "CI",
+        "FR"
+      ],
       "date_verification": null,
-      "acces": { "gratuit": false },
+      "acces": {
+        "gratuit": false
+      },
       "difficulte": {
         "niveau": "debutant",
         "explication": "Le jeu fonctionne sans base de données. La difficulté principale est de rédiger des questions justes et vérifiées."
       },
-      "competences": ["redaction"],
-      "materiel": ["ordinateur", "internet"],
+      "competences": [
+        "redaction"
+      ],
+      "materiel": [
+        "ordinateur",
+        "internet"
+      ],
       "filtres": {
-        "budget_lancement": { "min": 0, "max": 10000 },
-        "depenses_mensuelles": { "min": 0, "max": 0 },
-        "heures_hebdo": { "min": 2, "max": 5 }
+        "budget_lancement": {
+          "min": 0,
+          "max": 10000
+        },
+        "depenses_mensuelles": {
+          "min": 0,
+          "max": 0
+        },
+        "heures_hebdo": {
+          "min": 2,
+          "max": 5
+        }
       },
       "apercu": {
         "client_cible": "Joueurs sur mobile, écoles ou associations qui animent des soirées quiz.",
         "probleme": "Peu de quiz en ligne portent sur la culture locale avec des réponses fiables.",
         "offre": "Un quiz gratuit pour attirer un public, puis des quiz personnalisés vendus à des écoles ou entreprises pour leurs événements.",
-        "exemple_livrable": { "description": "Une partie de dix questions avec score final à partager.", "nature": "exemple" },
+        "exemple_livrable": {
+          "description": "Une partie de dix questions avec score final à partager.",
+          "nature": "exemple"
+        },
         "references": [
           {
             "nom": "Jeux de quiz en ligne",
@@ -558,14 +941,30 @@
           }
         ],
         "adaptation_locale": "Questions sur la culture ivoirienne et ouest-africaine, vérifiées par des sources fiables.",
-        "alternatives": ["Quiz sur papier pour des soirées, avant la version en ligne."],
-        "hypotheses": ["Des écoles ou associations paieraient un quiz personnalisé."],
+        "alternatives": [
+          "Quiz sur papier pour des soirées, avant la version en ligne."
+        ],
+        "hypotheses": [
+          "Des écoles ou associations paieraient un quiz personnalisé."
+        ],
         "outils": [
-          { "nom": "Assistant IA conversationnel", "url": null, "role": "Aider à produire le jeu et à structurer les questions.", "obligatoire": true, "cout": "À vérifier selon l'offre." }
+          {
+            "nom": "Assistant IA conversationnel",
+            "url": null,
+            "role": "Aider à produire le jeu et à structurer les questions.",
+            "obligatoire": true,
+            "cout": "À vérifier selon l'offre."
+          }
         ],
         "budget": {
           "lignes": [
-            { "libelle": "Nom de domaine (facultatif)", "min": 8000, "max": 15000, "recurrence": "annuel", "nature": "estimation" }
+            {
+              "libelle": "Nom de domaine (facultatif)",
+              "min": 8000,
+              "max": 15000,
+              "recurrence": "annuel",
+              "nature": "estimation"
+            }
           ],
           "note": "Montants de démonstration."
         },
@@ -581,14 +980,29 @@
         },
         "test_demande": {
           "description": "Partager le quiz dans trois groupes et mesurer le nombre de parties jouées.",
-          "criteres_poursuite": ["Au moins cent parties la première semaine."],
-          "criteres_revision": ["Moins de vingt parties."]
+          "criteres_poursuite": [
+            "Au moins cent parties la première semaine."
+          ],
+          "criteres_revision": [
+            "Moins de vingt parties."
+          ]
         },
-        "livrables": [{ "nom": "Jeu en ligne", "format": "URL" }],
-        "visuels": [
-          { "url": "/assets/open-declic/03_Illustrations/12_aide.svg", "alt": "Illustration : une personne réfléchit à une question.", "legende": "Illustration d'ambiance." }
+        "livrables": [
+          {
+            "nom": "Jeu en ligne",
+            "format": "URL"
+          }
         ],
-        "risques": ["Erreurs factuelles dans les questions : vérifier chaque réponse avec une source."],
+        "visuels": [
+          {
+            "url": "/assets/open-declic/03_Illustrations/12_aide.svg",
+            "alt": "Illustration : une personne réfléchit à une question.",
+            "legende": "Illustration d'ambiance."
+          }
+        ],
+        "risques": [
+          "Erreurs factuelles dans les questions : vérifier chaque réponse avec une source."
+        ],
         "limites": "Fiche de démonstration non vérifiée."
       },
       "reserve": {
@@ -613,11 +1027,22 @@
             "id": "ecrire-questions",
             "titre": "Écrire les questions",
             "objectif": "Obtenir une première série de questions avec réponses et sources à vérifier.",
-            "prerequis": ["Thèmes choisis lors du cadrage."],
-            "outil": { "nom": "Gemini", "url": "https://gemini.google.com" },
+            "prerequis": [
+              "Thèmes choisis lors du cadrage."
+            ],
+            "outil": {
+              "nom": "Gemini",
+              "url": "https://gemini.google.com"
+            },
             "modeles": {
-              "minimum": { "nom": null, "note": "À tester avant publication." },
-              "recommande": { "nom": null, "note": "À tester avant publication." },
+              "minimum": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
+              "recommande": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
               "economique": null,
               "date_verification": null,
               "source": null
@@ -629,35 +1054,64 @@
               "a_quoi_sert": "Ce prompt produit une première série de questions que vous vérifierez vous-même.",
               "comment_utiliser": "Collez-le dans votre assistant IA, puis vérifiez chaque réponse avec une source fiable avant de l'utiliser."
             },
-            "resultat_attendu": { "description": "Une liste de questions avec réponses et pistes de sources.", "format": "Tableau .csv" },
+            "resultat_attendu": {
+              "description": "Une liste de questions avec réponses et pistes de sources.",
+              "format": "Tableau .csv"
+            },
             "verification": "Chaque réponse a été vérifiée par vous avec une source.",
             "etape_suivante": "Construire le jeu.",
-            "livrables": [{ "nom": "Questions", "format": ".csv" }]
+            "livrables": [
+              {
+                "nom": "Questions",
+                "format": ".csv"
+              }
+            ]
           },
           {
             "id": "construire-jeu",
             "titre": "Construire le jeu",
             "objectif": "Obtenir un jeu jouable dans le navigateur.",
-            "prerequis": ["Questions vérifiées."],
-            "outil": { "nom": "Claude", "url": "https://claude.ai" },
+            "prerequis": [
+              "Questions vérifiées."
+            ],
+            "outil": {
+              "nom": "Claude",
+              "url": "https://claude.ai"
+            },
             "modeles": {
-              "minimum": { "nom": null, "note": "À tester avant publication." },
-              "recommande": { "nom": null, "note": "À tester avant publication." },
+              "minimum": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
+              "recommande": {
+                "nom": null,
+                "note": "À tester avant publication."
+              },
               "economique": null,
               "date_verification": null,
               "source": null
             },
-            "reglages": ["Joignez le fichier de questions."],
+            "reglages": [
+              "Joignez le fichier de questions."
+            ],
             "prompt": {
               "titre": "Construire le jeu",
               "mission": "Agis comme un développeur de jeux web. Construis un quiz jouable sur téléphone en HTML, CSS et JavaScript, qui lit les questions du fichier joint, affiche le score et permet de partager le résultat. Fournis les fichiers complets.",
               "a_quoi_sert": "Ce prompt produit le jeu à partir de vos questions vérifiées.",
               "comment_utiliser": "Collez-le avec le fichier de questions, ouvrez le jeu dans un navigateur et jouez une partie complète."
             },
-            "resultat_attendu": { "description": "Les fichiers du jeu.", "format": ".zip" },
+            "resultat_attendu": {
+              "description": "Les fichiers du jeu.",
+              "format": ".zip"
+            },
             "verification": "Une partie complète se joue sans erreur sur téléphone.",
             "etape_suivante": "Mettre le jeu en ligne et le partager.",
-            "livrables": [{ "nom": "Fichiers du jeu", "format": ".zip" }]
+            "livrables": [
+              {
+                "nom": "Fichiers du jeu",
+                "format": ".zip"
+              }
+            ]
           }
         ]
       }

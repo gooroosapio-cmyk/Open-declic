@@ -1,4 +1,4 @@
-import { COUNTRIES, DIFFICULTIES, DIFFICULTY_ORDER, EQUIPMENT, SKILLS, formatFcfa, formatRange, type Difficulty } from "./constants";
+import { AI_USAGES, CLIENT_TYPES, COUNTRIES, DIFFICULTIES, DIFFICULTY_ORDER, EQUIPMENT, EVIDENCE, SKILLS, formatFcfa, formatRange, type Difficulty } from "./constants";
 
 /** Sous-ensemble public d'une fiche utilisé par le catalogue (aucun contenu réservé). */
 export type CatalogItem = {
@@ -15,6 +15,14 @@ export type CatalogItem = {
   monthlyCost: { min: number | null; max: number | null };
   weeklyHours: { min: number | null; max: number | null };
   updatedAt: string;
+  contentLevel: "complete" | "modele";
+  odNumber: string | null;
+  workName: string | null;
+  domain: string | null;
+  clientType: string | null;
+  aiUsage: string | null;
+  evidence: string | null;
+  featured: boolean;
 };
 
 export type Filters = {
@@ -28,11 +36,18 @@ export type Filters = {
   materiel: string[]; // matériel dont je dispose
   pays: string | null;
   gratuit: boolean;
+  complete: boolean; // fiches complètes seulement
+  domaine: string | null;
+  client: string | null;
+  ia: string | null;
+  preuve: string | null;
+  inconnus: boolean; // inclure les projets dont la donnée filtrée n'est pas renseignée
 };
 
-export type SortKey = "pertinence" | "budget" | "temps" | "difficulte" | "recent";
+export type SortKey = "pertinence" | "alpha" | "budget" | "temps" | "difficulte" | "recent";
 export const SORTS: Record<SortKey, string> = {
-  pertinence: "Ordre alphabétique",
+  pertinence: "Numéro du catalogue",
+  alpha: "Ordre alphabétique",
   budget: "Budget de lancement croissant",
   temps: "Temps hebdomadaire croissant",
   difficulte: "Difficulté croissante",
@@ -41,6 +56,7 @@ export const SORTS: Record<SortKey, string> = {
 
 export const EMPTY_FILTERS: Filters = {
   q: "", budget: null, mensuel: null, niveau: null, competences: [], heures: null, categorie: null, materiel: [], pays: null, gratuit: false,
+  complete: false, domaine: null, client: null, ia: null, preuve: null, inconnus: false,
 };
 
 const num = (v: string | null) => {
@@ -65,6 +81,12 @@ export function parseFilters(sp: URLSearchParams): { filters: Filters; sort: Sor
       materiel: listParam(sp.get("materiel")).filter((s) => s in EQUIPMENT),
       pays: sp.get("pays") && sp.get("pays")! in COUNTRIES ? sp.get("pays") : null,
       gratuit: sp.get("gratuit") === "1",
+      complete: sp.get("niveau_contenu") === "complete",
+      domaine: sp.get("domaine") || null,
+      client: sp.get("client") && sp.get("client")! in CLIENT_TYPES ? sp.get("client") : null,
+      ia: sp.get("ia") && sp.get("ia")! in AI_USAGES ? sp.get("ia") : null,
+      preuve: sp.get("preuve") && sp.get("preuve")! in EVIDENCE ? sp.get("preuve") : null,
+      inconnus: sp.get("inconnus") === "1",
     },
     sort: sort && sort in SORTS ? sort : "pertinence",
   };
@@ -82,13 +104,19 @@ export function filtersToParams(f: Filters, sort: SortKey, extra: Record<string,
   if (f.materiel.length) p.set("materiel", f.materiel.join(","));
   if (f.pays) p.set("pays", f.pays);
   if (f.gratuit) p.set("gratuit", "1");
+  if (f.complete) p.set("niveau_contenu", "complete");
+  if (f.domaine) p.set("domaine", f.domaine);
+  if (f.client) p.set("client", f.client);
+  if (f.ia) p.set("ia", f.ia);
+  if (f.preuve) p.set("preuve", f.preuve);
+  if (f.inconnus) p.set("inconnus", "1");
   if (sort !== "pertinence") p.set("tri", sort);
   for (const [k, v] of Object.entries(extra)) p.set(k, v);
   return p;
 }
 
 export function activeFilterCount(f: Filters): number {
-  return [f.budget != null, f.mensuel != null, f.niveau, f.competences.length, f.heures != null, f.categorie, f.materiel.length, f.pays, f.gratuit]
+  return [f.budget != null, f.mensuel != null, f.niveau, f.competences.length, f.heures != null, f.categorie, f.materiel.length, f.pays, f.gratuit, f.complete, f.domaine, f.client, f.ia, f.preuve]
     .filter(Boolean).length;
 }
 
@@ -109,7 +137,7 @@ export function evaluate(item: CatalogItem, f: Filters, categoryLabel: (slug: st
   let unknown = false;
 
   if (f.q) {
-    const hay = normalize(`${item.title} ${item.summary} ${categoryLabel(item.category)}`);
+    const hay = normalize(`${item.odNumber ?? ""} ${item.title} ${item.workName ?? ""} ${item.summary} ${categoryLabel(item.category)} ${item.domain ?? ""}`);
     const ok = normalize(f.q).split(/\s+/).filter(Boolean).every((w) => hay.includes(w));
     reasons.push({ ok, text: ok ? `Contient « ${f.q} »` : `Ne contient pas « ${f.q} »` });
   }
@@ -118,7 +146,7 @@ export function evaluate(item: CatalogItem, f: Filters, categoryLabel: (slug: st
     const low = lowest(range);
     if (low == null) {
       unknown = true;
-      reasons.push({ ok: false, text: `${label} non renseigné : impossible de vérifier votre limite de ${formatFcfa(limit)}` });
+      reasons.push({ ok: f.inconnus, text: `${label} non renseigné : impossible de vérifier votre limite de ${formatFcfa(limit)}` });
       return;
     }
     const ok = low <= limit;
@@ -131,7 +159,7 @@ export function evaluate(item: CatalogItem, f: Filters, categoryLabel: (slug: st
     const low = lowest(item.weeklyHours);
     if (low == null) {
       unknown = true;
-      reasons.push({ ok: false, text: "Temps hebdomadaire non renseigné" });
+      reasons.push({ ok: f.inconnus, text: "Temps hebdomadaire non renseigné : à vérifier" });
     } else {
       const ok = low <= f.heures;
       reasons.push({ ok, text: `Demande ${formatRange(item.weeklyHours.min, item.weeklyHours.max, "h")} par semaine, ${ok ? "compatible avec" : "plus que"} vos ${f.heures} h` });
@@ -141,7 +169,10 @@ export function evaluate(item: CatalogItem, f: Filters, categoryLabel: (slug: st
     const ok = DIFFICULTY_ORDER.indexOf(item.difficulty as Difficulty) <= DIFFICULTY_ORDER.indexOf(f.niveau);
     reasons.push({ ok, text: `Niveau ${DIFFICULTIES[item.difficulty as Difficulty] ?? item.difficulty}${ok ? "" : `, au-delà du niveau ${DIFFICULTIES[f.niveau]} choisi`}` });
   }
-  if (f.competences.length) {
+  if (f.competences.length && item.skills.length === 0) {
+    unknown = true;
+    reasons.push({ ok: f.inconnus, text: "Compétences non renseignées : à vérifier" });
+  } else if (f.competences.length) {
     const common = item.skills.filter((s) => f.competences.includes(s));
     const ok = common.length > 0;
     reasons.push({
@@ -151,7 +182,10 @@ export function evaluate(item: CatalogItem, f: Filters, categoryLabel: (slug: st
         : "Ne mobilise aucune des compétences choisies",
     });
   }
-  if (f.materiel.length) {
+  if (f.materiel.length && item.equipment.length === 0) {
+    unknown = true;
+    reasons.push({ ok: f.inconnus, text: "Matériel non renseigné : à vérifier" });
+  } else if (f.materiel.length) {
     const missing = item.equipment.filter((e) => !f.materiel.includes(e));
     const ok = missing.length === 0;
     reasons.push({
@@ -170,7 +204,28 @@ export function evaluate(item: CatalogItem, f: Filters, categoryLabel: (slug: st
     reasons.push({ ok, text: ok ? `Étudié pour : ${COUNTRIES[f.pays as keyof typeof COUNTRIES]}` : "Pays non étudié" });
   }
   if (f.gratuit) {
-    reasons.push({ ok: item.isFree, text: item.isFree ? "Fiche gratuite" : "Fiche réservée à l'accès complet" });
+    const ok = item.isFree && item.contentLevel === "complete";
+    reasons.push({ ok, text: ok ? "Fiche gratuite" : item.contentLevel === "modele" ? "Modèle sans fiche complète" : "Fiche réservée à l'accès complet" });
+  }
+  if (f.complete) {
+    const ok = item.contentLevel === "complete";
+    reasons.push({ ok, text: ok ? "Fiche complète : étapes et prompts disponibles" : "Modèle : cahier de construction en préparation" });
+  }
+  if (f.domaine) {
+    const ok = item.domain === f.domaine;
+    reasons.push({ ok, text: ok ? `Domaine ${item.domain}` : "Autre domaine" });
+  }
+  if (f.client) {
+    const ok = item.clientType === f.client;
+    reasons.push({ ok, text: ok ? CLIENT_TYPES[f.client as keyof typeof CLIENT_TYPES] : "Autre type de client" });
+  }
+  if (f.ia) {
+    const ok = item.aiUsage === f.ia;
+    reasons.push({ ok, text: ok ? AI_USAGES[f.ia as keyof typeof AI_USAGES] : "Autre besoin d'IA à l'usage" });
+  }
+  if (f.preuve) {
+    const ok = item.evidence === f.preuve;
+    reasons.push({ ok, text: ok ? `Preuve ${f.preuve}` : "Autre niveau de preuve" });
   }
   return { match: reasons.every((r) => r.ok), reasons, unknown };
 }
@@ -187,7 +242,13 @@ export function sortItems<T extends CatalogItem>(items: T[], sort: SortKey): T[]
       return copy.sort((a, b) => DIFFICULTY_ORDER.indexOf(a.difficulty as Difficulty) - DIFFICULTY_ORDER.indexOf(b.difficulty as Difficulty) || a.title.localeCompare(b.title, "fr"));
     case "recent":
       return copy.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-    default:
+    case "alpha":
       return copy.sort((a, b) => a.title.localeCompare(b.title, "fr"));
+    default:
+      // Fiches complètes d'abord, puis numéro du catalogue (fiches hors catalogue en dernier).
+      return copy.sort((a, b) =>
+        Number(b.contentLevel === "complete") - Number(a.contentLevel === "complete") ||
+        (a.odNumber ?? "OD-999").localeCompare(b.odNumber ?? "OD-999") ||
+        a.title.localeCompare(b.title, "fr"));
   }
 }

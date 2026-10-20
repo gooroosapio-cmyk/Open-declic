@@ -4,7 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { validateImport, type Fiche } from "@/lib/fiche-schema";
 import { makeAdmin, newUser, sql } from "./helpers";
 
-const CATS = ["saas", "site-web", "application-mobile", "jeu"];
+const CATS = ["saas-app", "site", "jeu"];
 const SLUG = `test-import-${Date.now().toString(36)}`;
 let admin: { id: string; client: SupabaseClient };
 let user: { id: string; client: SupabaseClient };
@@ -12,9 +12,11 @@ let user: { id: string; client: SupabaseClient };
 function sample(): Fiche {
   const r = validateImport(JSON.parse(readFileSync("content/demo-fiches.json", "utf8")), CATS);
   if (!r.ok) throw new Error("exemple invalide");
-  return { ...structuredClone(r.fiches[0]), id: SLUG, demonstration: false, acces: { gratuit: true } };
+  const f = r.fiches[0];
+  if (f.niveau_contenu !== "complete") throw new Error("fiche complète attendue");
+  return { ...structuredClone(f), id: SLUG, demonstration: false, acces: { gratuit: true } };
 }
-const payload = (fiches: Fiche[]) => ({ schema_version: "1.0", fiches });
+const payload = (fiches: Fiche[]) => ({ schema_version: "1.1", fiches });
 
 beforeAll(async () => {
   admin = await newUser("import-admin");
@@ -68,5 +70,33 @@ describe("import", () => {
     const r = validateImport(payload([f as unknown as Fiche]), CATS);
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.issues[0]).toMatchObject({ champ: "resume" });
+  });
+});
+
+describe("niveaux de contenu", () => {
+  const MSLUG = `${SLUG}-modele`;
+  const modele = () => {
+    const cat = JSON.parse(readFileSync("content/catalogue-v1.json", "utf8"));
+    const m = structuredClone(cat.fiches.find((f: { id: string }) => f.id === "od-140"));
+    return { ...m, id: MSLUG, catalogue: null };
+  };
+  afterAll(() => sql(`delete from public.projects where slug = '${MSLUG}'`));
+
+  it("un modèle est importé sans kit, et la base refuse de lui en ajouter un", async () => {
+    const { error } = await admin.client.rpc("admin_import_fiches", { p_payload: { schema_version: "1.1", fiches: [modele()] } });
+    expect(error).toBeNull();
+    const pid = sql(`select id from public.projects where slug = '${MSLUG}'`);
+    expect(sql(`select content_level from public.projects where id = '${pid}'`)).toBe("modele");
+    const kit = await admin.client.from("project_kits").insert({ project_id: pid, content: {} });
+    expect(kit.error?.code).toBe("23514");
+  });
+
+  it("un modèle peut devenir une fiche complète ; l'inverse est refusé", async () => {
+    const complete = { ...sample(), id: MSLUG };
+    expect((await admin.client.rpc("admin_import_fiches", { p_payload: { schema_version: "1.1", fiches: [complete] } })).error).toBeNull();
+    expect(sql(`select content_level from public.projects where slug = '${MSLUG}'`)).toBe("complete");
+    const back = await admin.client.rpc("admin_import_fiches", { p_payload: { schema_version: "1.1", fiches: [modele()] } });
+    expect(back.error?.message).toMatch(/ne peut pas être remplacée par un modèle/);
+    expect(sql(`select content_level from public.projects where slug = '${MSLUG}'`)).toBe("complete");
   });
 });
