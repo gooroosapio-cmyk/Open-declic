@@ -269,3 +269,18 @@ export async function saveCategory(_: AdminResult, form: FormData): Promise<Admi
   revalidateAll();
   return { ok: true, message: "Catégorie enregistrée." };
 }
+
+/** Publie en une fois toutes les fiches en brouillon (après un import initial). */
+export async function publishAllDrafts(): Promise<AdminResult> {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("projects")
+    .update({ status: "published", published_at: new Date().toISOString() })
+    .eq("status", "draft")
+    .select("id");
+  if (error) return { ok: false, message: "La publication a échoué." };
+  revalidateAll();
+  const n = data?.length ?? 0;
+  return { ok: true, message: n === 0 ? "Aucun brouillon à publier." : `${n} fiche${n > 1 ? "s" : ""} publiée${n > 1 ? "s" : ""}.` };
+}

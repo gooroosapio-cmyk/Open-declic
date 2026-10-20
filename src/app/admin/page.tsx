@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ProjectControls } from "@/components/admin/ProjectControls";
+import { PublishAllButton } from "@/components/admin/PublishAllButton";
 import { listAllProjects } from "@/lib/admin";
 
 export default async function AdminHome() {
@@ -11,6 +12,7 @@ export default async function AdminHome() {
         <h1>Fiches</h1>
         <Link className="od-button od-button--secondary" href="/admin/import">Importer des fiches</Link>
       </div>
+      <PublishAllButton count={projects.filter((p) => p.status === "draft").length} />
       <p className="small muted">{projects.length} fiche{projects.length > 1 ? "s" : ""} · {free} gratuite{free > 1 ? "s" : ""} publiée{free > 1 ? "s" : ""}. Les nouvelles fiches s&apos;ajoutent par import JSON et arrivent en brouillon.</p>
       {projects.length === 0 ? (
         <p className="od-card muted">Aucune fiche. Commencez par un import.</p>
